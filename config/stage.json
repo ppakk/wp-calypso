@@ -27,6 +27,7 @@
 		"help/courses": true,
 		"jetpack/api-cache": true,
 		"jetpack_core_inline_update": true,
+		"jetpack/pijp": true,
 		"manage/custom-post-types": true,
 		"manage/customize": true,
 		"manage/edit-user": true,
