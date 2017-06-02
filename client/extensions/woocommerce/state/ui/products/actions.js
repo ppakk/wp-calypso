@@ -1,11 +1,16 @@
 /**
+ * External dependencies
+ */
+import { translate } from 'i18n-calypso';
+
+/**
  * Internal dependencies
  */
 // TODO: Remove this when product edits have siteIds.
 import { getSelectedSiteId } from 'state/ui/selectors';
 import { getAllProductEdits, getProductWithLocalEdits } from './selectors';
-import { createProduct } from '../../wc-api/products/actions';
-import { actionListCreate } from '../../action-list/actions';
+import { createProduct } from 'woocommerce/state/sites/products/actions';
+import { actionListCreate } from 'woocommerce/state/action-list/actions';
 import {
 	WOOCOMMERCE_PRODUCT_EDIT,
 	WOOCOMMERCE_PRODUCT_ATTRIBUTE_EDIT,
@@ -40,13 +45,6 @@ export function createProductActionList() {
 	};
 }
 
-const actionListOperations = {
-	[ WOOCOMMERCE_API_CREATE_PRODUCT ]: ( rootState, { siteId, productId } ) => {
-		const product = getProductWithLocalEdits( rootState, productId );
-		return createProduct( siteId, product, onSuccess, onFailure );
-	}
-};
-
 /**
  * Makes a product Action List object based on current product edits.
  *
@@ -62,6 +60,8 @@ export function makeProductActionList(
 	siteId = getSelectedSiteId( rootState ),
 	productEdits = getAllProductEdits( rootState )
 ) {
+	const steps = [];
+
 	// TODO: sequentially go through edit state and create steps.
 	/* TODO: Add category API calls before product.
 	...categories.creates
@@ -69,11 +69,16 @@ export function makeProductActionList(
 	...categories.deletes
 	*/
 
-	let productCreates = [];
 	if ( productEdits && productEdits.creates ) {
-		productCreates = productEdits.creates.map(
-			( p ) => ( { operation: WOOCOMMERCE_API_CREATE_PRODUCT, payload: { siteId: siteId, id: p.id } } )
-		);
+		// Each create gets its own step.
+		// TODO: Consider making these parallel actions.
+		productEdits.creates.forEach( ( p ) => {
+			const stepIndex = steps.length;
+			const description = translate( 'Creating product: ' ) + p.name;
+			const action = createProduct( siteId, product );
+
+			steps.push( { description, action } );
+		} );
 	}
 
 	/* TODO: Add updates and deletes
@@ -87,18 +92,6 @@ export function makeProductActionList(
 	...variation.deletes
 	*/
 
-	return [
-		...productCreates
-	];
-}
-
-function onSuccess( data ) {
-	// TODO: Fill in with next step.
-	console.log( 'Success!', data );
-}
-
-function onFailure( err ) {
-	// TODO: Fill in with next step.
-	console.log( 'Failure!', err );
+	return steps;
 }
 

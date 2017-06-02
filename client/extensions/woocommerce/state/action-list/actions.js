@@ -5,6 +5,7 @@
 import {
 	WOOCOMMERCE_ACTION_LIST_CREATE,
 	WOOCOMMERCE_ACTION_LIST_CLEAR,
+	WOOCOMMERCE_ACTION_LIST_START,
 	WOOCOMMERCE_ACTION_LIST_STEP_START,
 	WOOCOMMERCE_ACTION_LIST_STEP_END,
 } from '../action-types';
@@ -29,6 +30,12 @@ export function actionListCreate( actionList ) {
 export function actionListClear() {
 	return {
 		type: WOOCOMMERCE_ACTION_LIST_CLEAR,
+	};
+}
+
+export function actionListContinue() {
+	return {
+		type: WOOCOMMERCE_ACTION_LIST_CONTINUE,
 	};
 }
 
