@@ -256,6 +256,16 @@ UndocumentedSite.prototype.getConnection = function( connectionId ) {
 	} );
 };
 
+UndocumentedSite.prototype.uploadExternalMedia = function( service, files ) {
+	debug( '/sites/:site_id:/external-media-upload query' );
+
+	return this.wpcom.req.post( {
+		path: '/sites/' + this._id + '/external-media-upload',
+	}, {
+		external_ids: files, service
+	} );
+};
+
 /**
  * Runs Theme Setup (Headstart).
  *
