@@ -3,18 +3,17 @@
 /**
  * External dependencies
  */
-const webpack = require( 'webpack' ),
-	path = require( 'path' );
+const webpack = require( 'webpack' );
+const path = require( 'path' );
 
 /**
  * Internal dependencies
  */
-const config = require( './server/config' ),
-	cacheIdentifier = require( './server/bundler/babel/babel-loader-cache-identifier' ),
-	ChunkFileNamePlugin = require( './server/bundler/plugin' ),
-	CopyWebpackPlugin = require( 'copy-webpack-plugin' ),
-	HardSourceWebpackPlugin = require( 'hard-source-webpack-plugin' ),
-	WebpackStableBuildPlugin = require( './server/bundler/webpack/stable-build-plugin' );
+const config = require( './server/config' );
+const cacheIdentifier = require( './server/bundler/babel/babel-loader-cache-identifier' );
+const ChunkFileNamePlugin = require( './server/bundler/plugin' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+const HardSourceWebpackPlugin = require( 'hard-source-webpack-plugin' );
 
 /**
  * Internal variables
@@ -62,11 +61,8 @@ const webpackConfig = {
 				}
 			},
 			{
-				include: /node_modules[\/\\]tinymce/,
-				loader: 'imports-loader',
-				query: {
-					'this': 'window'
-				}
+				test: /node_modules[\/\\]tinymce/,
+				use: 'imports-loader?this=>window',
 			}
 		]
 	},
@@ -97,9 +93,6 @@ const webpackConfig = {
 				NODE_ENV: JSON.stringify( bundleEnv )
 			},
 			'PROJECT_NAME': JSON.stringify( config( 'project' ) )
-		} ),
-		new WebpackStableBuildPlugin( {
-			seed: 0
 		} ),
 		new webpack.IgnorePlugin( /^props$/ ),
 		new CopyWebpackPlugin( [ { from: 'node_modules/flag-icon-css/flags/4x3', to: 'images/flags' } ] )
@@ -179,11 +172,12 @@ const jsRules = {
 if ( calypsoEnv === 'development' ) {
 	const DashboardPlugin = require( 'webpack-dashboard/plugin' );
 	webpackConfig.plugins.splice( 0, 0, new DashboardPlugin() );
-	webpackConfig.plugins.push( new webpack.HotModuleReplacementPlugin() );
+	// webpackConfig.plugins.push( new webpack.HotModuleReplacementPlugin() );
 	webpackConfig.entry.build = [
-		'webpack-hot-middleware/client',
 		path.join( __dirname, 'client', 'boot', 'app' )
 	];
+	// webpackConfig.devServer = { hot: true };
+
 
 	if ( config.isEnabled( 'use-source-maps' ) ) {
 		webpackConfig.devtool = '#eval-cheap-module-source-map';
@@ -194,7 +188,6 @@ if ( calypsoEnv === 'development' ) {
 		} );
 	}
 } else {
-	webpackConfig.plugins.push( new webpack.LoaderOptionsPlugin( { debug: false } ) );
 	webpackConfig.entry.build = path.join( __dirname, 'client', 'boot', 'app' );
 	webpackConfig.devtool = false;
 }
