@@ -163,7 +163,7 @@ function singleEnsure( chunkName ) {
 module.exports = function( content ) {
 	var sections;
 
-	this.cacheable && this.cacheable();
+	// this.cacheable && this.cacheable(); // TODO @ehg why did you comment this out?
 
 	sections = require( this.resourcePath );
 

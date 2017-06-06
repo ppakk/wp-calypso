@@ -55,46 +55,46 @@ function getExternals() {
 
 const webpackConfig = {
 	devtool: 'source-map',
-	entry: path.join( __dirname, 'index.js' ),
+	entry: './index.js',
 	target: 'node',
 	output: {
 		path: path.join( __dirname, 'build' ),
 		filename: 'bundle.js',
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /extensions[\/\\]index/,
-				exclude: 'node_modules',
+				exclude: path.join( __dirname, 'node_modules' ),
 				loader: path.join( __dirname, 'server', 'bundler', 'extensions-loader' )
 			},
 			{
 				test: /sections.js$/,
-				exclude: 'node_modules',
+				exclude: path.join( __dirname, 'node_modules' ),
 				loader: path.join( __dirname, 'server', 'isomorphic-routing', 'loader' )
 			},
 			{
 				test: /\.jsx?$/,
 				exclude: /(node_modules|devdocs[\/\\]search-index)/,
-				loader: 'babel',
-				query: {
+				loader: 'babel-loader',
+				options: {
 					plugins: [ [
 						path.join( __dirname, 'server', 'bundler', 'babel', 'babel-plugin-transform-wpcalypso-async' ),
 						{ async: false }
 					] ]
 				}
 			},
-			{
-				test: /\.json$/,
-				exclude: /(devdocs[\/\\]components-usage-stats.json)/,
-				loader: 'json-loader'
-			}
 		]
 	},
 	resolve: {
-		extensions: [ '', '.json', '.js', '.jsx' ],
-		root: [ __dirname, path.join( __dirname, 'server' ), path.join( __dirname, 'client' ), path.join( __dirname, 'client', 'extensions' ) ],
-		modulesDirectories: [ 'node_modules' ]
+		modules: [
+			path.join( __dirname, 'server' ),
+			path.join( __dirname, 'client' ),
+			path.join( __dirname, 'client', 'extensions' ),
+			__dirname,
+			'node_modules',
+		],
+		extensions: [ '.json', '.js', '.jsx' ],
 	},
 	node: {
 		// Tell webpack we want to supply absolute paths for server code,
@@ -104,7 +104,7 @@ const webpackConfig = {
 	},
 	plugins: [
 		// Require source-map-support at the top, so we get source maps for the bundle
-		new webpack.BannerPlugin( 'require( "source-map-support" ).install();', { raw: true, entryOnly: false } ),
+		// new webpack.BannerPlugin( { banner: 'require( "source-map-support" ).install();', raw: true, entryOnly: false } ),
 		new webpack.DefinePlugin( {
 			'PROJECT_NAME': JSON.stringify( config( 'project' ) )
 		} ),
