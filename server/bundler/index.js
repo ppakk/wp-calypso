@@ -4,6 +4,7 @@
 var webpackMiddleware = require( 'webpack-dev-middleware' ),
 	webpack = require( 'webpack' ),
 	chalk = require( 'chalk' );
+const hotMiddleware = require( 'webpack-hot-middleware' );
 
 var utils = require( './utils' ),
 	webpackConfig = require( 'webpack.config' );
@@ -14,6 +15,8 @@ function middleware( app ) {
 		built = false,
 		beforeFirstCompile = true,
 		assets;
+
+	app.use( hotMiddleware( compiler ) );
 
 	app.set( 'compiler', compiler );
 
