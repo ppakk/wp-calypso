@@ -12,6 +12,7 @@
 		"transform-react-jsx",
 		"transform-react-display-name",
 		"lodash",
+		"react-hot-loader/babel",
 		[
 			"transform-imports",
 			{

@@ -172,7 +172,7 @@ const jsRules = {
 if ( calypsoEnv === 'development' ) {
 	const DashboardPlugin = require( 'webpack-dashboard/plugin' );
 	webpackConfig.plugins.splice( 0, 0, new DashboardPlugin() );
-	// webpackConfig.plugins.push( new webpack.HotModuleReplacementPlugin() );
+	webpackConfig.plugins.push( new webpack.HotModuleReplacementPlugin() );
 	webpackConfig.entry.build = [
 		path.join( __dirname, 'client', 'boot', 'app' )
 	];
