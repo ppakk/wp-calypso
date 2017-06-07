@@ -104,12 +104,13 @@ const ComingSoonMessage = translate => (
 	</div>
 );
 
-const ReaderPost = ( site, post ) => {
+const ReaderPost = ( site, post, frontPageMetaDescription ) => {
 	return (
 		<ReaderPreview
 			site={ site }
 			post={ post }
 			postExcerpt={ formatExcerpt(
+				frontPageMetaDescription ||
 				get( post, 'excerpt', false ) ||
 				get( post, 'content', false )
 			) }
@@ -126,11 +127,11 @@ const GoogleSite = ( site, frontPageMetaDescription ) => (
 	/>
 );
 
-const GooglePost = ( site, post ) => (
+const GooglePost = ( site, post, frontPageMetaDescription ) => (
 	<SearchPreview
 		title={ get( post, 'seoTitle', '' ) }
 		url={ get( post, 'URL', '' ) }
-		snippet={ getSeoExcerptForPost( post ) }
+		snippet={ frontPageMetaDescription || getSeoExcerptForPost( post ) }
 	/>
 );
 
@@ -144,12 +145,12 @@ const FacebookSite = ( site, frontPageMetaDescription ) => (
 	/>
 );
 
-const FacebookPost = ( site, post ) => (
+const FacebookPost = ( site, post, frontPageMetaDescription ) => (
 	<FacebookPreview
 		title={ get( post, 'seoTitle', '' ) }
 		url={ get( post, 'URL', '' ) }
 		type="article"
-		description={ getSeoExcerptForPost( post ) }
+		description={ frontPageMetaDescription || getSeoExcerptForPost( post ) }
 		image={ getPostImage( post ) }
 		author={ get( post, 'author.name', '' ) }
 	/>
@@ -165,12 +166,12 @@ const TwitterSite = ( site, frontPageMetaDescription ) => (
 	/>
 );
 
-const TwitterPost = ( site, post ) => (
+const TwitterPost = ( site, post, frontPageMetaDescription ) => (
 	<TwitterPreview
 		title={ get( post, 'seoTitle', '' ) }
 		url={ get( post, 'URL', '' ) }
 		type="large_image_summary"
-		description={ getSeoExcerptForPost( post ) }
+		description={ frontPageMetaDescription || getSeoExcerptForPost( post ) }
 		image={ getPostImage( post ) }
 	/>
 );
@@ -248,10 +249,10 @@ export class SeoPreviewPane extends PureComponent {
 				<div className="seo-preview-pane__preview-area">
 					<div className="seo-preview-pane__preview">
 						{ post && get( {
-							wordpress: ReaderPost( site, post ),
-							facebook: FacebookPost( site, post ),
-							google: GooglePost( site, post ),
-							twitter: TwitterPost( site, post )
+							wordpress: ReaderPost( site, post, frontPageMetaDescription ),
+							facebook: FacebookPost( site, post, frontPageMetaDescription ),
+							google: GooglePost( site, post, frontPageMetaDescription ),
+							twitter: TwitterPost( site, post, frontPageMetaDescription )
 						}, selectedService, ComingSoonMessage( translate ) ) }
 						{ ! post && get( {
 							facebook: FacebookSite( site, frontPageMetaDescription ),
