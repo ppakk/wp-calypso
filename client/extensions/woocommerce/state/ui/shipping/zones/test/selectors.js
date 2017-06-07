@@ -41,7 +41,7 @@ describe( 'selectors', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
-						wcApi: {
+						sites: {
 							123: {
 								shippingZones: [
 									{ id: 0, name: 'Zone0', methodIds: LOADING },
