@@ -216,7 +216,9 @@ export class WebPreview extends Component {
 								title={ this.props.iframeTitle || translate( 'Preview' ) }
 							/>
 							{ 'seo' === this.state.device &&
-								<SeoPreviewPane />
+								<SeoPreviewPane
+									frontPageMetaDescription={ this.props.frontPageMetaDescription || null }
+								/>
 							}
 						</div>
 					</div>

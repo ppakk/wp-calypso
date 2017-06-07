@@ -118,11 +118,11 @@ const ReaderPost = ( site, post ) => {
 	);
 };
 
-const GoogleSite = site => (
+const GoogleSite = ( site, frontPageMetaDescription ) => (
 	<SearchPreview
 		title={ site.name }
 		url={ site.URL }
-		snippet={ getSeoExcerptForSite( site ) }
+		snippet={ frontPageMetaDescription || getSeoExcerptForSite( site ) }
 	/>
 );
 
@@ -134,12 +134,12 @@ const GooglePost = ( site, post ) => (
 	/>
 );
 
-const FacebookSite = site => (
+const FacebookSite = ( site, frontPageMetaDescription ) => (
 	<FacebookPreview
 		title={ site.name }
 		url={ site.URL }
 		type="website"
-		description={ getSeoExcerptForSite( site ) }
+		description={ frontPageMetaDescription || getSeoExcerptForSite( site ) }
 		image={ largeBlavatar( site ) }
 	/>
 );
@@ -155,12 +155,12 @@ const FacebookPost = ( site, post ) => (
 	/>
 );
 
-const TwitterSite = site => (
+const TwitterSite = ( site, frontPageMetaDescription ) => (
 	<TwitterPreview
 		title={ site.name }
 		url={ site.URL }
 		type="summary"
-		description={ getSeoExcerptForSite( site ) }
+		description={ frontPageMetaDescription || getSeoExcerptForSite( site ) }
 		image={ largeBlavatar( site ) }
 	/>
 );
@@ -206,7 +206,8 @@ export class SeoPreviewPane extends PureComponent {
 			post,
 			site,
 			translate,
-			showNudge
+			showNudge,
+			frontPageMetaDescription,
 		} = this.props;
 
 		const { selectedService } = this.state;
@@ -253,9 +254,9 @@ export class SeoPreviewPane extends PureComponent {
 							twitter: TwitterPost( site, post )
 						}, selectedService, ComingSoonMessage( translate ) ) }
 						{ ! post && get( {
-							facebook: FacebookSite( site ),
-							google: GoogleSite( site ),
-							twitter: TwitterSite( site )
+							facebook: FacebookSite( site, frontPageMetaDescription ),
+							google: GoogleSite( site, frontPageMetaDescription ),
+							twitter: TwitterSite( site, frontPageMetaDescription )
 						}, selectedService, ComingSoonMessage( translate ) ) }
 					</div>
 				</div>
