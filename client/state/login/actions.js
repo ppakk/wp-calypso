@@ -30,6 +30,7 @@ import {
 	getTwoFactorUserId,
 	getTwoFactorAuthNonce,
 } from 'state/login/selectors';
+import wpcom from 'lib/wp';
 
 const errorMessages = {
 	account_unactivated: translate( "This account hasn't been activated yet — check your email for a message from " +
@@ -178,14 +179,26 @@ export const loginUserWithTwoFactorVerificationCode = ( two_step_code, remember_
 		} );
 };
 
+const createSocialAccount = ( service, serviceToken ) => new Promise( ( resolve, reject ) => {
+	wpcom.undocumented().usersSocialNew( service, serviceToken, 'login', ( wpcomError, wpcomResponse ) => {
+		wpcomError
+			? reject( wpcomError )
+			: resolve( {
+				username: wpcomResponse.username,
+				bearerToken: wpcomResponse.bearer_token
+			} );
+	} );
+} );
+
 /**
  * Attempt to login a user with an external social account.
  *
  * @param  {String}    service The external social service name.
  * @param  {String}    token   Authentication token provided by the external social service.
+ * @param  {Function|Boolean}  shouldCreateAccount Predicate that returns true or false wheter we should
  * @return {Function}          Action thunk to trigger the login process.
  */
-export const loginSocialUser = ( service, token ) => dispatch => {
+export const loginSocialUser = ( service, token, shouldCreateAccount ) => dispatch => {
 	dispatch( { type: SOCIAL_LOGIN_REQUEST } );
 
 	return request.post( 'https://wordpress.com/wp-login.php?action=social-login-endpoint' )
@@ -202,7 +215,15 @@ export const loginSocialUser = ( service, token ) => dispatch => {
 			dispatch( { type: SOCIAL_LOGIN_REQUEST_SUCCESS } );
 		} )
 		.catch( ( httpError ) => {
+			const errorKey = get( httpError, 'response.body.data.errors[0]' );
 			const error = getErrorFromHTTPError( httpError );
+
+			if ( errorKey === 'unknown_user' ) {
+				if ( ( typeof shouldCreateAccount === 'function' && shouldCreateAccount() ) ||
+					shouldCreateAccount ) {
+					return createSocialAccount( service, token );
+				}
+			}
 
 			dispatch( {
 				type: SOCIAL_LOGIN_REQUEST_FAILURE,
