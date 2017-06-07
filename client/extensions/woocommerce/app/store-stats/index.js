@@ -15,7 +15,7 @@ import Chart from './store-stats-chart';
 import Module from './store-stats-module';
 import List from './store-stats-list';
 import SectionHeader from 'components/section-header';
-import StoreStrings from 'woocommerce/app/store-stats/store-strings';
+import { topProducts } from 'woocommerce/app/store-stats/store-strings';
 
 class StoreStats extends Component {
 	static propTypes = {
@@ -40,9 +40,8 @@ class StoreStats extends Component {
 			quantity: '7',
 			limit: '3',
 		};
-		const { topProducts } = StoreStrings;
 		const topProductsHeader = (
-			<SectionHeader href={ '/store/stats/products' }>{ topProducts.title }</SectionHeader>
+			<SectionHeader href="/store/stats/products">{ topProducts.title }</SectionHeader>
 		);
 		return (
 			<Main className="store-stats woocommerce" wideLayout={ true }>
