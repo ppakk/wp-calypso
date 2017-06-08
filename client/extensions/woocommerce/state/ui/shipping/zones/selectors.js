@@ -57,9 +57,9 @@ export const getCurrentlyEditingShippingZone = ( state, siteId = getSelectedSite
 	if ( null === edits.currentlyEditingId ) {
 		return null;
 	}
-	const zone = find( getShippingZones( state, siteId ), { id: edits.currentlyEditingId.index } );
+	const zone = find( getShippingZones( state, siteId ), { id: edits.currentlyEditingId } );
 	if ( ! zone ) {
-		return null;
+		return { id: edits.currentlyEditingId, ...edits.currentlyEditingChanges };
 	}
 	return { ...zone, ...edits.currentlyEditingChanges };
 };
