@@ -15,61 +15,15 @@ import {
 	getCreatedSocialAccountUsername,
 	getCreatedSocialAccountBearerToken,
 	isSocialAccountCreating,
-	getCreateSocialAccountError,
-	getRequestSocialAccountError,
-
 } from 'state/login/selectors';
-import { errorNotice, infoNotice, removeNotice } from 'state/notices/actions';
 import WpcomLoginForm from 'signup/wpcom-login-form';
-
-class GlobalNotice extends Component {
-	static propTypes = {
-		displayNotice: PropTypes.func.isRequired,
-		removeNotice: PropTypes.func.isRequired,
-		text: PropTypes.string.isRequired,
-	};
-
-	componentWillMount() {
-		const { notice } = this.props.displayNotice( this.props.text );
-		this.notice = notice;
-	}
-
-	componentWillUnmount() {
-		if ( this.notice ) {
-			this.props.removeNotice( this.notice.noticeId );
-		}
-	}
-
-	render() {
-		return null;
-	}
-}
-
-const Notice = connect(
-	null,
-	{
-		errorNotice,
-		infoNotice,
-		removeNotice,
-	},
-	( stateProps, dispatchProps, ownProps ) => ( {
-		...ownProps,
-		displayNotice: ownProps.type === 'info' ? dispatchProps.infoNotice : dispatchProps.errorNotice,
-		removeNotice: dispatchProps.removeNotice
-	} )
-)( GlobalNotice );
 
 class SocialLoginForm extends Component {
 	static propTypes = {
-		errorNotice: PropTypes.func.isRequired,
-		infoNotice: PropTypes.func.isRequired,
-		removeNotice: PropTypes.func.isRequired,
 		onSuccess: PropTypes.func.isRequired,
 		translate: PropTypes.func.isRequired,
 		loginSocialUser: PropTypes.func.isRequired,
 		createSocialAccount: PropTypes.func.isRequired,
-		requestAccountError: PropTypes.object,
-		createAccountError: PropTypes.object,
 	};
 
 	handleGoogleResponse = ( response ) => {
@@ -118,25 +72,12 @@ class SocialLoginForm extends Component {
 				<div className="login__social-buttons">
 					<GoogleLoginButton
 						clientId={ config( 'google_oauth_client_id' ) }
-						responseHandler={ this.handleGoogleResponse } />
-				</div>
-
-				{ this.props.isSocialAccountCreating && <Notice
-					type="info"
-					text={ this.props.translate( 'Creating your account' ) }
-				/> }
-
-				{ this.props.createAccountError && <Notice
-					type="error"
-					text={ this.props.createAccountError.message }
-				/> }
-
-				{ ( this.props.requestAccountError && this.props.requestAccountError.type !== 'unknown_user' ) &&
-					<Notice
-						type="error"
-						text={ this.props.requestAccountError.message }
+						responseHandler={ this.handleGoogleResponse }
+						overrideText={ this.props.isSocialAccountCreating
+							? this.props.translate( 'Creating your account…' )
+							: null }
 					/>
-				}
+				</div>
 
 				{ this.props.bearerToken && (
 					<WpcomLoginForm
@@ -155,13 +96,8 @@ export default connect(
 		isSocialAccountCreating: isSocialAccountCreating( state ),
 		bearerToken: getCreatedSocialAccountBearerToken( state ),
 		username: getCreatedSocialAccountUsername( state ),
-		createAccountError: getCreateSocialAccountError( state ),
-		requestAccountError: getRequestSocialAccountError( state ),
 	} ),
 	{
-		errorNotice,
-		infoNotice,
-		removeNotice,
 		loginSocialUser,
 		createSocialAccount,
 	}

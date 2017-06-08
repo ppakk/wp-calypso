@@ -94,6 +94,18 @@ function getErrorFromHTTPError( httpError ) {
 	return { code, message, field };
 }
 
+const wpcomErrorMessages = {
+	user_exists: translate( 'Whoops! Your email on Google is already in use WordPress.com. ' +
+		'To use your existing WordPress.com account, log in with your email address and password. ' +
+		"To create a new WordPress.com account, you'll have to switch to a different Google account." )
+};
+
+const getErrorFromWPCOMError = ( wpcomError ) => ( {
+	message: wpcomErrorMessages[ wpcomError.error ] || wpcomError.message,
+	type: wpcomError.error,
+	field: 'global',
+} );
+
 /**
  * Attempt to login a user.
  *
@@ -188,8 +200,9 @@ export const createSocialAccount = ( service, serviceToken ) => dispatch => {
 	return new Promise( ( resolve, reject ) => {
 		wpcom.undocumented().usersSocialNew( service, serviceToken, 'login', ( wpcomError, wpcomResponse ) => {
 			if ( wpcomError ) {
-				dispatch( { type: SOCIAL_CREATE_ACCOUNT_FAILURE, error: wpcomError } );
-				reject( wpcomError );
+				const error = getErrorFromWPCOMError( wpcomError );
+				dispatch( { type: SOCIAL_CREATE_ACCOUNT_FAILURE, error } );
+				reject( error );
 			} else {
 				const data = {
 					username: wpcomResponse.username,
