@@ -95,7 +95,7 @@ function getErrorFromHTTPError( httpError ) {
 }
 
 const wpcomErrorMessages = {
-	user_exists: translate( 'Whoops! Your email on Google is already in use WordPress.com. ' +
+	user_exists: translate( 'Whoops! Your email on Google is already in use on WordPress.com. ' +
 		'To use your existing WordPress.com account, log in with your email address and password. ' +
 		"To create a new WordPress.com account, you'll have to switch to a different Google account." )
 };
