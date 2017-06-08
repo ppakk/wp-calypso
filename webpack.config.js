@@ -175,8 +175,11 @@ if ( calypsoEnv === 'development' ) {
 	webpackConfig.plugins.push( new webpack.HotModuleReplacementPlugin() );
 	webpackConfig.plugins.push( new webpack.LoaderOptionsPlugin( { debug: true } ) );
 	webpackConfig.entry.build = [
+		'webpack-hot-middleware/client',
 		path.join( __dirname, 'client', 'boot', 'app' )
 	];
+	jsRules.loader = [ 'react-hot-loader', ...jsRules.loader ];
+	webpackConfig.devServer = { hot: true, inline: true };
 
 
 	if ( config.isEnabled( 'use-source-maps' ) ) {
