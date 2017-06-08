@@ -315,6 +315,8 @@ class ActivityLog extends Component {
 	renderContent() {
 		const {
 			siteId,
+			slug,
+			startDate
 		} = this.props;
 		const logs = this.logs();
 		const logsGroupedByDate = map(
@@ -333,11 +335,7 @@ class ActivityLog extends Component {
 			)
 		);
 
-		let date = moment().startOf( 'month' );
-		const selectedMonth = window.location.search.replace( '?startDate=', '' );
-		if ( selectedMonth.length > 0 ) {
-			date = moment( selectedMonth.split( '-' ) ).subtract( 1, 'months' );
-		}
+		const date = moment( startDate ).startOf( 'month' );
 		const query = {
 			period: 'month',
 			date: date.endOf( 'month' ).format( 'YYYY-MM-DD' )
