@@ -8,6 +8,7 @@ import { expect } from 'chai';
  */
 import {
 	getShippingZoneMethod,
+	getShippingZoneMethods,
 	areShippingZoneMethodsLoaded,
 	areShippingZoneMethodsLoading,
 } from '../selectors';
@@ -47,6 +48,69 @@ describe( 'selectors', () => {
 			};
 
 			expect( getShippingZoneMethod( state, 17, 123 ) ).to.deep.equal( { id: 17, methodType: 'free_shipping' } );
+		} );
+	} );
+
+	describe( 'get shipping zone methods', () => {
+		it( 'when shipping zone does not exist', () => {
+			const state = {
+				extensions: {
+					woocommerce: {
+						sites: {
+							123: {
+								shippingZoneMethods: {
+									17: { id: 17, method_id: 'free_shipping' },
+								},
+								shippingZones: []
+							},
+						},
+					},
+				},
+			};
+
+			expect( getShippingZoneMethods( state, 1, 123 ) ).to.be.falsey;
+		} );
+
+		it( 'when shipping zone method does not exist', () => {
+			const state = {
+				extensions: {
+					woocommerce: {
+						sites: {
+							123: {
+								shippingZoneMethods: {},
+								shippingZones: [ {
+									id: 1,
+									methodIds: []
+								} ]
+							},
+						},
+					},
+				},
+			};
+
+			expect( getShippingZoneMethods( state, 1, 123 ) ).to.be.falsey;
+		} );
+
+		it( 'when shipping zone methods exists', () => {
+			const state = {
+				extensions: {
+					woocommerce: {
+						sites: {
+							123: {
+								shippingZoneMethods: {
+									17: { id: 17, method_id: 'free_shipping' },
+								},
+								shippingZones: [ {
+									id: 1,
+									methodIds: [ 17 ]
+								} ]
+							},
+						},
+					},
+				},
+			};
+
+			expect( getShippingZoneMethods( state, 1, 123 ) ).to.deep.equal( { 17: { id: 17, method_id: 'free_shipping' } } );
 		} );
 	} );
 

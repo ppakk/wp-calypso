@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { find, get, isArray, isObject } from 'lodash';
+import { find, get, isArray, isObject, pick } from 'lodash';
 
 /**
  * Internal dependencies
@@ -26,6 +26,31 @@ export const getShippingZoneMethod = ( state, id, siteId = getSelectedSiteId( st
 		return null;
 	}
 	return methods[ id ];
+};
+
+/**
+ * @param {Object} state Whole Redux state tree
+ * @param {Number} zoneId Shipping Zone ID to get shipping methods for
+ * @param {Number} [siteId] Site ID to get. If not provided, the Site ID selected in the UI will be used
+ * @return {Array|null} The shipping zone array, or null if it wasn't found
+ */
+export const getShippingZoneMethods = ( state, zoneId, siteId = getSelectedSiteId( state ) ) => {
+	const zones = getAPIShippingZones( state, siteId );
+	if ( ! isArray( zones ) ) {
+		return null;
+	}
+
+	const zone = find( zones, { id: zoneId } );
+	if ( ! zone || ! zone.methodIds ) {
+		return null;
+	}
+
+	const methods = getAPIShippingZoneMethods( state, siteId );
+	if ( ! isObject( methods ) ) {
+		return null;
+	}
+
+	return pick( methods, zone.methodIds );
 };
 
 /**

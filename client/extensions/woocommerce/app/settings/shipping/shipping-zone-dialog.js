@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
 
 /**
@@ -16,6 +18,8 @@ import FormTextInput from 'components/forms/form-text-input';
 import FreeShippingMethod from './shipping-methods/free-shipping';
 import LocalPickupMethod from './shipping-methods/local-pickup';
 import TokenField from 'components/token-field';
+import { isCurrentlyEditingShippingZone } from 'woocommerce/state/ui/shipping/zones/selectors';
+import { cancelEditingShippingZone } from 'woocommerce/state/ui/shipping/zones/actions';
 
 class ShippingZoneDialog extends Component {
 	constructor( props ) {
@@ -51,7 +55,7 @@ class ShippingZoneDialog extends Component {
 	}
 
 	render() {
-		const { translate, isVisible, onClose } = this.props;
+		const { translate, isVisible } = this.props;
 		const buttons = [
 			{ action: 'cancel', label: translate( 'Cancel' ) },
 			{ action: 'add', label: translate( 'Add zone' ), isPrimary: true },
@@ -94,7 +98,7 @@ class ShippingZoneDialog extends Component {
 				additionalClassNames="shipping__zone-dialog woocommerce"
 				isVisible={ isVisible }
 				buttons={ buttons }
-				onClose={ onClose } >
+				onClose={ this.props.cancelEditingShippingZone } >
 				<div className="shipping__zone-dialog-header">{ translate( 'Add new shipping zone' ) }</div>
 				<FormFieldSet>
 					<FormLabel htmlFor="zone-name">{ translate( 'Shipping zone name' ) }</FormLabel>
@@ -120,9 +124,9 @@ class ShippingZoneDialog extends Component {
 	}
 }
 
-ShippingZoneDialog.propTypes = {
-	isVisible: PropTypes.bool,
-	onClose: PropTypes.func
-};
-
-export default localize( ShippingZoneDialog );
+export default connect(
+	( state ) => ( {
+		isVisible: isCurrentlyEditingShippingZone( state ),
+	} ),
+	( dispatch ) => ( bindActionCreators( { cancelEditingShippingZone }, dispatch ) )
+)( localize( ShippingZoneDialog ) );
