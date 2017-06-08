@@ -69,7 +69,7 @@ const errorFields = {
  * Retrieves the first error message from the specified HTTP error.
  *
  * @param {Object} httpError HTTP error
- * @returns {{message: string, field: string, type:string}} an error message and the id of the corresponding field, if not global
+ * @returns {{message: string, field: string, code:string}} an error message and the id of the corresponding field, if not global
  */
 function getErrorFromHTTPError( httpError ) {
 	let message;
@@ -104,11 +104,11 @@ const wpcomErrorMessages = {
  * Transforms WPCOM error to the error object we use for login purposes
  *
  * @param {Object} wpcomError HTTP error
- * @returns {{message: string, field: string, type: string}} an error message and the id of the corresponding field
+ * @returns {{message: string, field: string, code: string}} an error message and the id of the corresponding field
  */
 const getErrorFromWPCOMError = ( wpcomError ) => ( {
 	message: wpcomErrorMessages[ wpcomError.error ] || wpcomError.message,
-	type: wpcomError.error,
+	code: wpcomError.error,
 	field: 'global',
 } );
 

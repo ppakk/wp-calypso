@@ -97,7 +97,7 @@ class Login extends Component {
 		const error = this.props.requestError ||
 			this.props.twoFactorAuthRequestError ||
 			this.props.requestAccountError ||
-			this.props.createAccountError && this.props.createAccountError.type !== 'unknown_user' ? this.props.createAccountError : null;
+			this.props.createAccountError && this.props.createAccountError.code !== 'unknown_user' ? this.props.createAccountError : null;
 
 		if ( ! error || ( error.field && error.field !== 'global' ) || ! error.message ) {
 			return null;

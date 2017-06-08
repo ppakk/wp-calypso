@@ -16,6 +16,7 @@ import {
 	getCreatedSocialAccountBearerToken,
 	isSocialAccountCreating,
 } from 'state/login/selectors';
+import { recordTracksEvent } from 'state/analytics/actions';
 import WpcomLoginForm from 'signup/wpcom-login-form';
 
 class SocialLoginForm extends Component {
@@ -31,12 +32,15 @@ class SocialLoginForm extends Component {
 			return;
 		}
 
+		const recordEvent = ( eventName, params ) => this.props.recordTracksEvent( eventName, {
+			social_account_type: 'google',
+			...params
+		} );
+
 		this.props.loginSocialUser( 'google', response.Zi.id_token )
 			.then(
 				() => {
-					this.props.recordTracksEvent( 'calypso_social_login_form_login_success', {
-						social_account_type: 'google',
-					} );
+					recordEvent( 'calypso_social_login_form_login_success' );
 
 					this.props.onSuccess()
 				},
@@ -44,20 +48,15 @@ class SocialLoginForm extends Component {
 					if ( error.code === 'unknown_user' ) {
 						return this.props.createSocialAccount( 'google', response.Zi.id_token )
 							.then(
-								() => this.props.recordTracksEvent( 'calypso_social_login_form_signup_success', {
-									social_account_type: 'google',
-								} ),
-								error => this.props.recordTracksEvent( 'calypso_social_login_form_signup_fail', {
-									social_account_type: 'google',
-									error: error.message
-								} )
+								() => recordEvent( 'calypso_social_login_form_signup_success' ),
+								createAccountError => recordEvent(
+									'calypso_social_login_form_signup_fail',
+									{ error: createAccountError.message }
+								)
 							)
 					}
 
-					this.props.recordTracksEvent( 'calypso_social_login_form_login_fail', {
-						social_account_type: 'google',
-						error: error.message
-					} );
+					recordEvent( 'calypso_social_login_form_login_fail', { error: error.message } );
 				}
 			);
 	};
@@ -100,5 +99,6 @@ export default connect(
 	{
 		loginSocialUser,
 		createSocialAccount,
+		recordTracksEvent,
 	}
 )( localize( SocialLoginForm ) );
