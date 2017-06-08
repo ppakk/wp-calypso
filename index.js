@@ -60,5 +60,6 @@ if ( config( 'env' ) === 'development' ) {
 	compiler.plugin( 'done', function() {
 		sendBootStatus( 'compiler done' );
 	} );
+
 	hotReloader.listen( server, compiler );
 }
