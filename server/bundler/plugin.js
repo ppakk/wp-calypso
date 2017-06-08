@@ -38,7 +38,15 @@ ChunkFileNames.prototype.apply = function( compiler ) {
 						"return Promise.resolve();"
 					] ),
 					"};",
-					"script.src = " + this.requireFn + ".p + (" + JSON.stringify( chunkMaps.name ) + "[chunkId]||chunkId) + '.' + (" + JSON.stringify( chunkMaps.hash ) + "[chunkId]||chunkID) + ( isDebug ? '' : '.min' ) + '.js';",
+					"if ( configData.env === 'development' ) {",
+					this.indent( [
+						"script.src = " + this.requireFn + ".p + (" + JSON.stringify( chunkMaps.name ) + "[chunkId]||chunkId) + ( isDebug ? '' : '.min' ) + '.js';"
+					] ),
+					"} else {",
+					this.indent( [
+						"script.src = " + this.requireFn + ".p + (" + JSON.stringify( chunkMaps.name ) + "[chunkId]||chunkId) + '.' + (" + JSON.stringify( chunkMaps.hash ) + "[chunkId]||chunkID) + ( isDebug ? '' : '.min' ) + '.js';",
+					] ),
+					"}",
 					"head.appendChild( script );",
 					"return promise;"
 				] ),

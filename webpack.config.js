@@ -30,8 +30,6 @@ const webpackConfig = {
 	output: {
 		path: path.join( __dirname, 'public' ),
 		publicPath: '/calypso/',
-		filename: '[name].[chunkhash].js', // prefer the chunkhash, which depends on the chunk, not the entire build
-		chunkFilename: '[name].[chunkhash].js', // ditto
 		devtoolModuleFilenameTemplate: 'app:///[resource-path]'
 	},
 	module: {
@@ -95,7 +93,9 @@ const webpackConfig = {
 			'PROJECT_NAME': JSON.stringify( config( 'project' ) )
 		} ),
 		new webpack.IgnorePlugin( /^props$/ ),
-		new CopyWebpackPlugin( [ { from: 'node_modules/flag-icon-css/flags/4x3', to: 'images/flags' } ] )
+		new CopyWebpackPlugin( [ { from: 'node_modules/flag-icon-css/flags/4x3', to: 'images/flags' } ] ),
+		new webpack.NamedModulesPlugin(),
+		new webpack.NamedChunksPlugin(),
 	],
 	externals: [ 'electron' ]
 };
@@ -123,6 +123,7 @@ if ( calypsoEnv === 'desktop' ) {
 		new webpack.optimize.CommonsChunkPlugin( {
 			name: 'vendor',
 			filename: 'vendor.[chunkhash].js',
+			minChunks: Infinity,
 		} )
 	);
 
@@ -180,6 +181,8 @@ if ( calypsoEnv === 'development' ) {
 	];
 	jsRules.loader = [ 'react-hot-loader', ...jsRules.loader ];
 	webpackConfig.devServer = { hot: true, inline: true };
+	webpackConfig.output.filename = '[name].js';
+	webpackConfig.output.chunkFilename = '[name].js';
 
 
 	if ( config.isEnabled( 'use-source-maps' ) ) {
@@ -200,6 +203,11 @@ if ( calypsoEnv === 'production' ) {
 		/^debug$/,
 		path.join( __dirname, 'client', 'lib', 'debug-noop' )
 	) );
+	// prefer the chunkhash for production builds which depends on the chunk, not the entire build
+	// it is very slow though so only apply to production builds.
+	// see: https://webpack.js.org/guides/caching/#deterministic-hashes
+	webpackConfig.output.filename = '[name].[chunkhash].js';
+	webpackConfig.output.chunkFilename = '[name].[chunkhash].js';
 }
 
 if ( ! config.isEnabled( 'desktop' ) ) {
