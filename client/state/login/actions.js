@@ -13,6 +13,9 @@ import {
 	LOGIN_REQUEST,
 	LOGIN_REQUEST_FAILURE,
 	LOGIN_REQUEST_SUCCESS,
+	SOCIAL_CREATE_ACCOUNT_REQUEST,
+	SOCIAL_CREATE_ACCOUNT_FAILURE,
+	SOCIAL_CREATE_ACCOUNT_SUCCESS,
 	SOCIAL_LOGIN_REQUEST,
 	SOCIAL_LOGIN_REQUEST_FAILURE,
 	SOCIAL_LOGIN_REQUEST_SUCCESS,
@@ -66,7 +69,7 @@ const errorFields = {
  * Retrieves the first error message from the specified HTTP error.
  *
  * @param {Object} httpError HTTP error
- * @returns {{code: string?, message: string, field: string}} an error message and the id of the corresponding field, if not global
+ * @returns {{message: string, field: string}} an error message and the id of the corresponding field, if not global
  */
 function getErrorFromHTTPError( httpError ) {
 	let message;
@@ -179,26 +182,34 @@ export const loginUserWithTwoFactorVerificationCode = ( two_step_code, remember_
 		} );
 };
 
-const createSocialAccount = ( service, serviceToken ) => new Promise( ( resolve, reject ) => {
-	wpcom.undocumented().usersSocialNew( service, serviceToken, 'login', ( wpcomError, wpcomResponse ) => {
-		wpcomError
-			? reject( wpcomError )
-			: resolve( {
-				username: wpcomResponse.username,
-				bearerToken: wpcomResponse.bearer_token
-			} );
+export const createSocialAccount = ( service, serviceToken ) => dispatch => {
+	dispatch( { type: SOCIAL_CREATE_ACCOUNT_REQUEST } );
+
+	return new Promise( ( resolve, reject ) => {
+		wpcom.undocumented().usersSocialNew( service, serviceToken, 'login', ( wpcomError, wpcomResponse ) => {
+			if ( wpcomError ) {
+				dispatch( { type: SOCIAL_CREATE_ACCOUNT_FAILURE, error: wpcomError } );
+				reject( wpcomError );
+			} else {
+				const data = {
+					username: wpcomResponse.username,
+					bearerToken: wpcomResponse.bearer_token
+				};
+				dispatch( { type: SOCIAL_CREATE_ACCOUNT_SUCCESS, data } );
+				resolve( data );
+			}
+		} );
 	} );
-} );
+};
 
 /**
  * Attempt to login a user with an external social account.
  *
  * @param  {String}    service The external social service name.
  * @param  {String}    token   Authentication token provided by the external social service.
- * @param  {Function|Boolean}  shouldCreateAccount Predicate that returns true or false wheter we should
  * @return {Function}          Action thunk to trigger the login process.
  */
-export const loginSocialUser = ( service, token, shouldCreateAccount ) => dispatch => {
+export const loginSocialUser = ( service, token ) => dispatch => {
 	dispatch( { type: SOCIAL_LOGIN_REQUEST } );
 
 	return request.post( 'https://wordpress.com/wp-login.php?action=social-login-endpoint' )
@@ -213,17 +224,8 @@ export const loginSocialUser = ( service, token, shouldCreateAccount ) => dispat
 		} )
 		.then( () => {
 			dispatch( { type: SOCIAL_LOGIN_REQUEST_SUCCESS } );
-		} )
-		.catch( ( httpError ) => {
-			const errorKey = get( httpError, 'response.body.data.errors[0]' );
+		}, ( httpError ) => {
 			const error = getErrorFromHTTPError( httpError );
-
-			if ( errorKey === 'unknown_user' ) {
-				if ( ( typeof shouldCreateAccount === 'function' && shouldCreateAccount() ) ||
-					shouldCreateAccount ) {
-					return createSocialAccount( service, token );
-				}
-			}
 
 			dispatch( {
 				type: SOCIAL_LOGIN_REQUEST_FAILURE,

@@ -160,3 +160,9 @@ export const getRequestError = ( state ) => {
 export const getRequestNotice = ( state ) => {
 	return get( state, 'login.requestNotice', null );
 };
+
+export const isSocialAccountCreating = ( state ) => get( state, 'login.socialAccount.creating', null );
+export const getCreatedSocialAccountUsername = ( state ) => get( state, 'login.socialAccount.username', null );
+export const getCreatedSocialAccountBearerToken = ( state ) => get( state, 'login.socialAccount.bearerToken', null );
+export const getCreateSocialAccountError = ( state ) => get( state, 'login.socialAccount.createError', null );
+export const getRequestSocialAccountError = ( state ) => get( state, 'login.socialAccount.requestError', null );

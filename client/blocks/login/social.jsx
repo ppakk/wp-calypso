@@ -10,10 +10,54 @@ import { localize } from 'i18n-calypso';
  * Internal dependencies
  */
 import config from 'config';
-import { loginSocialUser } from 'state/login/actions';
+import { loginSocialUser, createSocialAccount } from 'state/login/actions';
+import {
+	getCreatedSocialAccountUsername,
+	getCreatedSocialAccountBearerToken,
+	isSocialAccountCreating,
+	getCreateSocialAccountError,
+	getRequestSocialAccountError,
+
+} from 'state/login/selectors';
 import { errorNotice, infoNotice, removeNotice } from 'state/notices/actions';
-import wpcom from 'lib/wp';
 import WpcomLoginForm from 'signup/wpcom-login-form';
+
+class GlobalNotice extends Component {
+	static propTypes = {
+		displayNotice: PropTypes.func.isRequired,
+		removeNotice: PropTypes.func.isRequired,
+		text: PropTypes.string.isRequired,
+	};
+
+	componentWillMount() {
+		const { notice } = this.props.displayNotice( this.props.text );
+		this.notice = notice;
+	}
+
+	componentWillUnmount() {
+		if ( this.notice ) {
+			this.props.removeNotice( this.notice.noticeId );
+		}
+	}
+
+	render() {
+		return null;
+	}
+}
+
+const Notice = connect(
+	null,
+	{
+		errorNotice,
+		infoNotice,
+		removeNotice,
+	},
+	( stateProps, dispatchProps, ownProps ) => ( {
+		...ownProps,
+		displayNotice: ownProps.type === 'info' ? dispatchProps.infoNotice : dispatchProps.errorNotice,
+		removeNotice: dispatchProps.removeNotice
+	} )
+)( GlobalNotice );
 
 class SocialLoginForm extends Component {
 	static propTypes = {
@@ -22,11 +66,10 @@ class SocialLoginForm extends Component {
 		removeNotice: PropTypes.func.isRequired,
 		onSuccess: PropTypes.func.isRequired,
 		translate: PropTypes.func.isRequired,
-	};
-
-	state = {
-		username: null,
-		bearerToken: null,
+		loginSocialUser: PropTypes.func.isRequired,
+		createSocialAccount: PropTypes.func.isRequired,
+		requestAccountError: PropTypes.object,
+		createAccountError: PropTypes.object,
 	};
 
 	handleGoogleResponse = ( response ) => {
@@ -34,38 +77,35 @@ class SocialLoginForm extends Component {
 			return;
 		}
 
-		let creatingAccountNotice = null;
+		this.props.loginSocialUser( 'google', response.Zi.id_token )
+			.then(
+				() => {
+					this.props.recordTracksEvent( 'calypso_social_login_form_login_success', {
+						social_account_type: 'google',
+					} );
 
-		this.props.loginSocialUser( 'google', response.Zi.id_token, () => {
-			const { notice } = this.props.infoNotice( this.props.translate( 'Creating your account' ) );
-			creatingAccountNotice = notice;
-			return true;
-		} ).then( result => {
-			if ( creatingAccountNotice ) {
-				this.props.removeNotice( creatingAccountNotice.noticeId );
-			}
+					this.props.onSuccess()
+				},
+				error => {
+					if ( error.code === 'unknown_user' ) {
+						return this.props.createSocialAccount( 'google', response.Zi.id_token )
+							.then(
+								() => this.props.recordTracksEvent( 'calypso_social_login_form_signup_success', {
+									social_account_type: 'google',
+								} ),
+								error => this.props.recordTracksEvent( 'calypso_social_login_form_signup_fail', {
+									social_account_type: 'google',
+									error: error.message
+								} )
+							)
+					}
 
-			if ( result ) {
-				this.setState( result );
-			}
-
-			this.props.recordTracksEvent( 'calypso_social_login_form_login_success', {
-				social_account_type: 'google',
-			} );
-
-			this.props.onSuccess();
-		}, error => {
-			if ( creatingAccountNotice ) {
-				this.props.removeNotice( creatingAccountNotice.noticeId );
-			}
-
-			this.props.recordTracksEvent( 'calypso_social_login_form_signup_fail', {
-				social_account_type: 'google',
-				error: error.message
-			} );
-
-			this.props.errorNotice( error.message );
-		} );
+					this.props.recordTracksEvent( 'calypso_social_login_form_login_fail', {
+						social_account_type: 'google',
+						error: error.message
+					} );
+				}
+			);
 	};
 
 	render() {
@@ -81,10 +121,27 @@ class SocialLoginForm extends Component {
 						responseHandler={ this.handleGoogleResponse } />
 				</div>
 
-				{ this.state.bearerToken && (
+				{ this.props.isSocialAccountCreating && <Notice
+					type="info"
+					text={ this.props.translate( 'Creating your account' ) }
+				/> }
+
+				{ this.props.createAccountError && <Notice
+					type="error"
+					text={ this.props.createAccountError.message }
+				/> }
+
+				{ ( this.props.requestAccountError && this.props.requestAccountError.type !== 'unknown_user' ) &&
+					<Notice
+						type="error"
+						text={ this.props.requestAccountError.message }
+					/>
+				}
+
+				{ this.props.bearerToken && (
 					<WpcomLoginForm
-						log={ this.state.username }
-						authorization={ 'Bearer ' + this.state.bearerToken }
+						log={ this.props.username }
+						authorization={ 'Bearer ' + this.props.bearerToken }
 						redirectTo="/start"
 					/>
 				) }
@@ -94,11 +151,18 @@ class SocialLoginForm extends Component {
 }
 
 export default connect(
-	null,
+	state => ( {
+		isSocialAccountCreating: isSocialAccountCreating( state ),
+		bearerToken: getCreatedSocialAccountBearerToken( state ),
+		username: getCreatedSocialAccountUsername( state ),
+		createAccountError: getCreateSocialAccountError( state ),
+		requestAccountError: getRequestSocialAccountError( state ),
+	} ),
 	{
 		errorNotice,
 		infoNotice,
 		removeNotice,
 		loginSocialUser,
+		createSocialAccount,
 	}
 )( localize( SocialLoginForm ) );
