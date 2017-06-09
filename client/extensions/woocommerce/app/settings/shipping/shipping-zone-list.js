@@ -17,11 +17,8 @@ import ShippingZoneDialog from './shipping-zone-dialog';
 import Spinner from 'components/spinner';
 import { addNewShippingZone } from 'woocommerce/state/ui/shipping/zones/actions';
 import { fetchShippingZones } from 'woocommerce/state/sites/shipping-zones/actions';
-import {
-	getAPIShippingZones,
-	areShippingZonesLoaded,
-	areShippingZonesLoading
-} from 'woocommerce/state/sites/shipping-zones/selectors';
+import { areShippingZonesLoaded } from 'woocommerce/state/sites/shipping-zones/selectors';
+import { getShippingZones } from 'woocommerce/state/ui/shipping/zones/selectors';
 import { getSelectedSiteId } from 'state/ui/selectors';
 
 class ShippingZoneList extends Component {
@@ -48,25 +45,11 @@ class ShippingZoneList extends Component {
 			);
 		}
 
-		const { translate } = this.props;
+		const { translate, siteId } = this.props;
 
 		const renderShippingZone = ( zone, index ) => {
-			return ( <ShippingZone key={ index } { ...zone } /> );
+			return ( <ShippingZone key={ index } siteId={ siteId } { ...zone } /> );
 		};
-
-		const sortedZones = [ ...this.props.shippingZones ].sort( ( z1, z2 ) => {
-			//Rest of the World should always be at the bottom
-			if ( 0 === z1.id ) {
-				return 1;
-			}
-
-			//Order by the order of creation, unless overriden
-			if ( z1.order === z2.order ) {
-				return z1.id - z2.id;
-			}
-
-			return z1.order - z2.order;
-		} );
 
 		return (
 			<div>
@@ -76,7 +59,7 @@ class ShippingZoneList extends Component {
 					<div className="shipping__zones-row-methods">{ translate( 'Shipping methods' ) }</div>
 					<div className="shipping__zones-row-actions" />
 				</div>
-				{ sortedZones.map( renderShippingZone ) }
+				{ this.props.shippingZones.map( renderShippingZone ) }
 			</div>
 		);
 	}
@@ -96,7 +79,7 @@ class ShippingZoneList extends Component {
 				<Card className="shipping__zones">
 					{ this.renderContent() }
 				</Card>
-				<ShippingZoneDialog />
+				<ShippingZoneDialog siteId={ siteId } />
 			</div>
 		);
 	}
@@ -105,8 +88,7 @@ class ShippingZoneList extends Component {
 export default connect(
 	( state ) => ( {
 		siteId: getSelectedSiteId( state ),
-		shippingZones: getAPIShippingZones( state ),
-		loading: areShippingZonesLoading( state ),
+		shippingZones: getShippingZones( state ),
 		loaded: areShippingZonesLoaded( state )
 	} ),
 	( dispatch ) => (

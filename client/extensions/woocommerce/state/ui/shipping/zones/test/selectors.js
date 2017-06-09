@@ -143,9 +143,9 @@ describe( 'selectors', () => {
 			};
 
 			expect( getShippingZones( state ) ).to.deep.equal( [
+				{ id: { index: 0 }, methodIds: [], name: 'NewZone4' },
 				{ id: 2, methodIds: [], name: 'EditedZone2' },
 				{ id: 3, methodIds: [], name: 'Zone3' },
-				{ id: { index: 0 }, methodIds: [], name: 'NewZone4' },
 			] );
 		} );
 

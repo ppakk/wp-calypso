@@ -15,7 +15,6 @@ import Spinner from 'components/spinner';
 import { areShippingZoneMethodsLoaded } from 'woocommerce/state/sites/shipping-zone-methods/selectors';
 import { getShippingZoneMethods } from 'woocommerce/state/ui/shipping/zones/methods/selectors';
 import { openShippingZoneForEdit } from 'woocommerce/state/ui/shipping/zones/actions';
-import { getSelectedSiteId } from 'state/ui/selectors';
 
 const ShippingZone = ( { translate, id, name, methods, loaded, siteId, ...props } ) => {
 	const renderMethod = ( methodKey ) => {
@@ -65,13 +64,13 @@ const ShippingZone = ( { translate, id, name, methods, loaded, siteId, ...props 
 };
 
 ShippingZone.propTypes = {
-	id: PropTypes.number,
+	siteId: PropTypes.number,
+	id: PropTypes.oneOfType( [ PropTypes.number, PropTypes.object ] ),
 	name: PropTypes.string
 };
 
 export default connect(
 	( state, ownProps ) => ( {
-		siteId: getSelectedSiteId( state ),
 		methods: getShippingZoneMethods( state, ownProps.id ),
 		loaded: areShippingZoneMethodsLoaded( state, ownProps.id )
 	} ),

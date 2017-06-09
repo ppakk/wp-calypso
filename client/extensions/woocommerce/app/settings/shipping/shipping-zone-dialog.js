@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
+import { isNumber } from 'lodash';
 
 /**
  * Internal dependencies
@@ -18,8 +19,15 @@ import FormTextInput from 'components/forms/form-text-input';
 import FreeShippingMethod from './shipping-methods/free-shipping';
 import LocalPickupMethod from './shipping-methods/local-pickup';
 import TokenField from 'components/token-field';
-import { isCurrentlyEditingShippingZone } from 'woocommerce/state/ui/shipping/zones/selectors';
-import { cancelEditingShippingZone } from 'woocommerce/state/ui/shipping/zones/actions';
+import {
+	isCurrentlyEditingShippingZone,
+	getCurrentlyEditingShippingZone
+} from 'woocommerce/state/ui/shipping/zones/selectors';
+import {
+	changeShippingZoneName,
+	closeEditingShippingZone,
+	cancelEditingShippingZone
+} from 'woocommerce/state/ui/shipping/zones/actions';
 
 class ShippingZoneDialog extends Component {
 	constructor( props ) {
@@ -55,11 +63,13 @@ class ShippingZoneDialog extends Component {
 	}
 
 	render() {
-		const { translate, isVisible } = this.props;
-		const buttons = [
-			{ action: 'cancel', label: translate( 'Cancel' ) },
-			{ action: 'add', label: translate( 'Add zone' ), isPrimary: true },
-		];
+		const { zone, siteId, translate, isVisible } = this.props;
+		const { id, name } = zone || {};
+		const isEditing = isNumber( id );
+
+		const onCancel = () => ( this.props.cancelEditingShippingZone( siteId ) );
+		const onClose = () => ( this.props.closeEditingShippingZone( siteId ) );
+		const onNameChange = ( event ) => ( this.props.changeShippingZoneName( siteId, event.target.value ) );
 
 		const onLocationChange = ( location ) => {
 			this.setState( { location } );
@@ -93,18 +103,25 @@ class ShippingZoneDialog extends Component {
 			);
 		};
 
+		const buttons = [
+			{ action: 'cancel', label: translate( 'Cancel' ) },
+			{ action: 'add', label: isEditing ? translate( 'Save' ) : translate( 'Add zone' ), onClick: onClose, isPrimary: true },
+		];
+
 		return (
 			<Dialog
 				additionalClassNames="shipping__zone-dialog woocommerce"
 				isVisible={ isVisible }
 				buttons={ buttons }
-				onClose={ this.props.cancelEditingShippingZone } >
+				onClose={ onCancel } >
 				<div className="shipping__zone-dialog-header">{ translate( 'Add new shipping zone' ) }</div>
 				<FormFieldSet>
 					<FormLabel htmlFor="zone-name">{ translate( 'Shipping zone name' ) }</FormLabel>
 					<FormTextInput
 						name="zone-name"
-						placeholder={ translate( 'For your reference only, the customer will not see this' ) } />
+						placeholder={ translate( 'For your reference only, the customer will not see this' ) }
+						value={ name || '' }
+						onChange={ onNameChange } />
 				</FormFieldSet>
 				<FormFieldSet>
 					<FormLabel>{ translate( 'Shipping location' ) }</FormLabel>
@@ -124,9 +141,18 @@ class ShippingZoneDialog extends Component {
 	}
 }
 
+ShippingZoneDialog.propTypes = {
+	siteId: PropTypes.number,
+};
+
 export default connect(
 	( state ) => ( {
 		isVisible: isCurrentlyEditingShippingZone( state ),
+		zone: getCurrentlyEditingShippingZone( state )
 	} ),
-	( dispatch ) => ( bindActionCreators( { cancelEditingShippingZone }, dispatch ) )
+	( dispatch ) => ( bindActionCreators( {
+		changeShippingZoneName,
+		closeEditingShippingZone,
+		cancelEditingShippingZone
+	}, dispatch ) )
 )( localize( ShippingZoneDialog ) );
