@@ -244,6 +244,12 @@ export function hasTld( cart, tld ) {
 	} );
 }
 
+export function getTlds( cart ) {
+	return uniq( map( getDomainRegistrations( cart ), function( cartItem ) {
+		return trimStart( getDomainRegistrationTld( cartItem ), '.' );
+	} ) );
+}
+
 export function getDomainRegistrationTld( cartItem ) {
 	if ( ! isDomainRegistration( cartItem ) ) {
 		throw new Error( 'This function only works on domain registration cart ' +
