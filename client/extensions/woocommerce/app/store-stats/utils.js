@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { includes } from 'lodash';
-import classnames from 'classnames';
 
 /**
  * @typedef {Object} Delta
@@ -21,7 +20,7 @@ import classnames from 'classnames';
  * @return {Delta} - An object used to render the UI element
  */
 export function calculateDelta( item, previousItem, attr, unit ) {
-	const negativeIsBeneficialAttributes = [ 'total_refund' ];
+	const negativeIsFavourable = [ 'total_refund' ];
 	const sinceLabels = {
 		day: 'labelDay',
 		week: 'labelWeek',
@@ -32,21 +31,14 @@ export function calculateDelta( item, previousItem, attr, unit ) {
 	if ( previousItem && previousItem[ attr ] !== 0 ) {
 		const current = item[ attr ];
 		const previous = previousItem[ attr ];
-		value = Math.round( ( ( current - previous ) / previous ) * 100 );
+		value = ( current - previous ) / previous;
 	}
-	const isIncrease = value > 0;
-	const isIncreaseFavorable = includes( negativeIsBeneficialAttributes, attr ) ? ! isIncrease : isIncrease;
-	const classes = classnames( {
-		'is-neutral': value === 0,
-		'is-increase': value > 0,
-		'is-decrease': value < 0,
-		'is-favorable': value !== 0 && isIncreaseFavorable,
-		'is-unfavorable': value !== 0 && ! isIncreaseFavorable,
-	} );
-	const since = previousItem ? `since ${ previousItem[ sinceLabels[ unit ] ] }` : null;
+	const isIncreaseFavorable = ! includes( negativeIsFavourable, attr );
+	const sinceLabel = previousItem ? `since ${ previousItem[ sinceLabels[ unit ] ] }` : null;
+
 	return {
-		classes: classes.split( ' ' ),
-		since,
-		value: `${ Math.abs( value ) }%`,
+		isIncreaseFavorable,
+		sinceLabel,
+		value,
 	};
 }
