@@ -7,13 +7,16 @@ import React, { PureComponent } from 'react';
  * Internal dependencies
  */
 import Card from 'components/card';
-import ExtraInfoFrForm from 'components/domains/registrant-extra-info/fr-form';
+import FrForm from 'components/domains/registrant-extra-info/fr-form';
+import CaForm from 'components/domains/registrant-extra-info/ca-form';
 import { forDomainRegistrations as getCountries } from 'lib/countries-list';
 const countriesList = getCountries();
 
 class ExtraInfoFrFormExample extends PureComponent {
 	state = {
-		registrantExtraInfo: {},
+		registrantExtraInfo: {
+			extra: {},
+		},
 	}
 
 	handleExtraChange = ( registrantExtraInfo ) => {
@@ -29,11 +32,17 @@ class ExtraInfoFrFormExample extends PureComponent {
 				</p>
 
 				<Card>
-					<ExtraInfoFrForm
-						values={ this.state.registrantExtraInfo }
+					<FrForm
+						contactDetails={ this.state.registrantExtraInfo }
 						countriesList={ countriesList }
-						onStateChange={ this.handleExtraChange } >
-					</ExtraInfoFrForm>
+						updateContactDetailsCache={ this.handleExtraChange } >
+					</FrForm>
+				</Card>
+				<Card>
+					<CaForm
+						values={ this.state.caExtraInfo }
+						onChange={ this.handleExtraChange } >
+					</CaForm>
 				</Card>
 			</div>
 		);
