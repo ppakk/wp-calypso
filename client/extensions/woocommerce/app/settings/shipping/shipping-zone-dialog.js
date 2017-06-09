@@ -14,15 +14,15 @@ import Button from 'components/button';
 import Dialog from 'components/dialog';
 import FormFieldSet from 'components/forms/form-fieldset';
 import FormLabel from 'components/forms/form-label';
-import FormSelect from 'components/forms/form-select';
 import FormTextInput from 'components/forms/form-text-input';
-import FreeShippingMethod from './shipping-methods/free-shipping';
-import LocalPickupMethod from './shipping-methods/local-pickup';
+import ShippingZoneMethod from './shipping-zone-method';
 import TokenField from 'components/token-field';
 import {
 	isCurrentlyEditingShippingZone,
 	getCurrentlyEditingShippingZone
 } from 'woocommerce/state/ui/shipping/zones/selectors';
+import { addMethodToShippingZone } from 'woocommerce/state/ui/shipping/zones/methods/actions';
+import { getCurrentlyEditingShippingZoneMethods } from 'woocommerce/state/ui/shipping/zones/methods/selectors';
 import {
 	changeShippingZoneName,
 	closeEditingShippingZone,
@@ -33,73 +33,28 @@ class ShippingZoneDialog extends Component {
 	constructor( props ) {
 		super( props );
 
-		this.freeShippingDefaults = {
-			methodId: 'free',
-			everyone: true,
-			minSpend: 0
-		};
-
-		this.localPickupDefaults = {
-			methodId: 'local',
-			price: 0,
-			taxable: false
-		};
-
 		this.state = {
-			location: [],
-			shippingMethods: [ { ...this.freeShippingDefaults } ]
+			location: []
 		};
-	}
-
-	changeShippingMethod( index, value ) {
-		const shippingMethods = this.state.shippingMethods;
-		if ( 'free' === value ) {
-			shippingMethods[ index ] = { ...this.freeShippingDefaults };
-		} else {
-			shippingMethods[ index ] = { ...this.localPickupDefaults };
-		}
-
-		this.setState( { shippingMethods } );
 	}
 
 	render() {
-		const { zone, siteId, translate, isVisible } = this.props;
+		const { zone, methods, siteId, translate, isVisible } = this.props;
 		const { id, name } = zone || {};
 		const isEditing = isNumber( id );
 
 		const onCancel = () => ( this.props.cancelEditingShippingZone( siteId ) );
 		const onClose = () => ( this.props.closeEditingShippingZone( siteId ) );
 		const onNameChange = ( event ) => ( this.props.changeShippingZoneName( siteId, event.target.value ) );
+		const addMethod = () => ( this.props.addMethodToShippingZone( siteId, 'flat_rate' ) );
 
 		const onLocationChange = ( location ) => {
 			this.setState( { location } );
 		};
 
-		const addMethod = () => {
-			const shippingMethods = this.state.shippingMethods;
-			shippingMethods.push( { ...this.freeShippingDefaults } );
-			this.setState( { shippingMethods } );
-		};
-
 		const renderShippingMethod = ( method, index ) => {
-			const { methodId } = method;
-
-			const onMethodChange = ( event ) => {
-				this.changeShippingMethod( index, event.target.value );
-			};
-
 			return (
-				<div key={ index }>
-					<FormSelect
-						value={ methodId }
-						onChange={ onMethodChange } >
-						<option value="free">{ translate( 'Free shipping' ) }</option>
-						<option value="local">{ translate( 'Local pickup' ) }</option>
-					</FormSelect>
-					{ 'free' === methodId
-						? <FreeShippingMethod { ...method } />
-						: <LocalPickupMethod { ...method } /> }
-				</div>
+				<ShippingZoneMethod key={ index } { ...method } />
 			);
 		};
 
@@ -131,7 +86,7 @@ class ShippingZoneDialog extends Component {
 				</FormFieldSet>
 				<div>
 					<FormLabel>{ translate( 'Shipping method' ) }</FormLabel>
-					{ this.state.shippingMethods.map( renderShippingMethod ) }
+					{ methods.map( renderShippingMethod ) }
 				</div>
 				<FormFieldSet>
 					<Button compact onClick={ addMethod }>{ translate( 'Add another shipping method' ) }</Button>
@@ -148,9 +103,11 @@ ShippingZoneDialog.propTypes = {
 export default connect(
 	( state ) => ( {
 		isVisible: isCurrentlyEditingShippingZone( state ),
-		zone: getCurrentlyEditingShippingZone( state )
+		zone: getCurrentlyEditingShippingZone( state ),
+		methods: getCurrentlyEditingShippingZoneMethods( state )
 	} ),
 	( dispatch ) => ( bindActionCreators( {
+		addMethodToShippingZone,
 		changeShippingZoneName,
 		closeEditingShippingZone,
 		cancelEditingShippingZone
