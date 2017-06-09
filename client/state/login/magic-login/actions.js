@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { get } from 'lodash';
 import request from 'superagent';
 
 /**
@@ -10,17 +11,16 @@ import config from 'config';
 import wpcom from 'lib/wp';
 import { AUTHENTICATE_URL } from './constants';
 import {
+	LOGIN_REQUEST_SUCCESS,
 	MAGIC_LOGIN_HIDE_REQUEST_FORM,
 	MAGIC_LOGIN_HIDE_REQUEST_NOTICE,
 	MAGIC_LOGIN_REQUEST_AUTH_ERROR,
 	MAGIC_LOGIN_REQUEST_AUTH_FETCH,
-	MAGIC_LOGIN_REQUEST_AUTH_SUCCESS,
 	MAGIC_LOGIN_REQUEST_LOGIN_EMAIL_ERROR,
 	MAGIC_LOGIN_REQUEST_LOGIN_EMAIL_FETCH,
 	MAGIC_LOGIN_REQUEST_LOGIN_EMAIL_SUCCESS,
 	MAGIC_LOGIN_RESET_REQUEST_FORM,
 	MAGIC_LOGIN_SET_INPUT_EMAIL_ADDRESS,
-	MAGIC_LOGIN_SHOW_INTERSTITIAL_PAGE,
 	MAGIC_LOGIN_SHOW_LINK_EXPIRED,
 	MAGIC_LOGIN_SHOW_CHECK_YOUR_EMAIL_PAGE,
 } from 'state/action-types';
@@ -28,12 +28,6 @@ import {
 export const showMagicLoginCheckYourEmailPage = () => {
 	return {
 		type: MAGIC_LOGIN_SHOW_CHECK_YOUR_EMAIL_PAGE,
-	};
-};
-
-export const showMagicLoginInterstitialPage = () => {
-	return {
-		type: MAGIC_LOGIN_SHOW_INTERSTITIAL_PAGE,
 	};
 };
 
@@ -87,12 +81,6 @@ const authError = error => {
 	};
 };
 
-const authSuccess = () => {
-	return {
-		type: MAGIC_LOGIN_REQUEST_AUTH_SUCCESS,
-	};
-};
-
 export const fetchMagicLoginAuthenticate = ( email, token, tt ) => dispatch => {
 	dispatch( { type: MAGIC_LOGIN_REQUEST_AUTH_FETCH } );
 
@@ -119,9 +107,18 @@ export const fetchMagicLoginAuthenticate = ( email, token, tt ) => dispatch => {
 				dispatch( authError( statusCode || 500 ) );
 				return;
 			}
-
+			// console.log({ok,statusCode});
 			if ( ok && statusCode === 200 ) {
-				dispatch( authSuccess() );
+				const data = get( response, 'body.data', {} );
+				const { user_id } = data;
+				// console.log('suppp', data);
+
+				dispatch( {
+					type: LOGIN_REQUEST_SUCCESS,
+					usernameOrEmail: user_id,
+					// rememberMe: 1,
+					data: data,
+				} );
 				return;
 			}
 

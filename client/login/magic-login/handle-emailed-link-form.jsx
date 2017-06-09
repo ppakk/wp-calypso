@@ -5,6 +5,12 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import emailValidator from 'email-validator';
+import {
+	includes,
+	intersection,
+} from 'lodash';
+import page from 'page';
+import debugFactory from 'debug';
 
 /**
  * Internal dependencies
@@ -22,8 +28,20 @@ import {
 	getMagicLoginRequestedAuthSuccessfully,
 	isFetchingMagicLoginAuth,
 } from 'state/selectors';
+import {
+	getTwoFactorNotificationSent,
+	getTwoFactorSupportedAuthTypes,
+	isTwoFactorEnabled,
+} from 'state/login/selectors';
 import { getCurrentUser } from 'state/current-user/selectors';
 import { getCurrentQueryArguments } from 'state/ui/selectors';
+
+const debug = debugFactory( 'calypso:magic-login' );
+
+const ALLOWED_SECOND_FACTORS = [
+	'authenticator',
+	'sms',
+];
 
 class HandleEmailedLinkForm extends React.Component {
 	state = {
@@ -55,17 +73,47 @@ class HandleEmailedLinkForm extends React.Component {
 			return;
 		}
 
-		if ( nextProps.authError ) {
+		const {
+			isAuthenticated,
+			isTwoFactor,
+			twoFactorAuthTypes,
+			twoFactorNotificationSent,
+		} = nextProps;
+
+		// console.log( 'ohai', nextProps );
+
+		if ( nextProps.authError || ! isAuthenticated ) {
 			// @TODO if this is a 5XX, or timeout, show an error...?
 			this.props.showMagicLoginLinkExpiredPage();
 			return;
 		}
 
-		if ( nextProps.isAuthenticated ) {
+		if ( ! isTwoFactor ) {
+			debug( 'no 2 factor detected -- redirecting' );
 			// @TODO avoid full reload
 			window.location.replace( '/' );
+		}
+
+		let authType;
+		const filteredAuthTypes = intersection( ALLOWED_SECOND_FACTORS, twoFactorAuthTypes );
+
+		for ( let i = 0; i < filteredAuthTypes.length; i++ ) {
+			if ( twoFactorNotificationSent && twoFactorNotificationSent === filteredAuthTypes[ i ] ) {
+				authType = twoFactorNotificationSent;
+			}
+		}
+		if ( includes( filteredAuthTypes, 'authenticator' ) ) {
+			authType = 'authenticator';
+		}
+
+		if ( ! authType ) {
+			this.props.showMagicLoginLinkExpiredPage();
 			return;
 		}
+
+// @todo fix "empty_two_step_nonce" error
+		page( '/log-in/' + authType );
+		return;
 	}
 
 	render() {
@@ -132,8 +180,12 @@ const mapState = state => {
 
 	return {
 		authError: getMagicLoginRequestAuthError( state ),
+		// @TODO the following isn't working quite right
 		isAuthenticated: getMagicLoginRequestedAuthSuccessfully( state ),
 		isFetching: isFetchingMagicLoginAuth( state ),
+		isTwoFactor: isTwoFactorEnabled( state ),
+		twoFactorAuthTypes: getTwoFactorSupportedAuthTypes( state ) || [],
+		twoFactorNotificationSent: getTwoFactorNotificationSent( state ),
 		currentUser: getCurrentUser( state ),
 		clientId,
 		emailAddress,

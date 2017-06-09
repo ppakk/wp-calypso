@@ -14,7 +14,6 @@ import notices from 'notices';
 import { login } from 'lib/paths';
 import {
 	CHECK_YOUR_EMAIL_PAGE,
-	INTERSTITIAL_PAGE,
 	LINK_EXPIRED_PAGE,
 } from 'state/login/magic-login/constants';
 import {
@@ -24,13 +23,11 @@ import {
 import { getCurrentQueryArguments } from 'state/ui/selectors';
 import {
 	hideMagicLoginRequestForm,
-	showMagicLoginInterstitialPage,
 } from 'state/login/magic-login/actions';
 import { recordTracksEvent } from 'state/analytics/actions';
 import Main from 'components/main';
 import EmailedLoginLinkSuccessfully from './emailed-login-link-successfully';
 import EmailedLoginLinkExpired from './emailed-login-link-expired';
-import HandleEmailedLinkForm from './handle-emailed-link-form';
 import RequestLoginEmailForm from './request-login-email-form';
 import PageViewTracker from 'lib/analytics/page-view-tracker';
 import GlobalNotices from 'components/global-notices';
@@ -42,7 +39,6 @@ class MagicLogin extends React.Component {
 		magicLoginEnabled: PropTypes.bool,
 		magicLoginView: PropTypes.string,
 		recordTracksEvent: PropTypes.func.isRequired,
-		showMagicLoginInterstitialPage: PropTypes.func.isRequired,
 		translate: PropTypes.func.isRequired,
 	};
 
@@ -66,20 +62,6 @@ class MagicLogin extends React.Component {
 			case CHECK_YOUR_EMAIL_PAGE:
 				this.props.recordTracksEvent( 'calypso_login_magic_link_link_sent_view' );
 				return <EmailedLoginLinkSuccessfully emailAddress={ magicLoginEmailAddress } />;
-			case INTERSTITIAL_PAGE:
-				this.props.recordTracksEvent( 'calypso_login_magic_link_interstitial_view' );
-				return <HandleEmailedLinkForm />;
-		}
-	}
-
-	componentWillMount() {
-		const {
-			magicLoginEnabled,
-			queryArguments,
-		} = this.props;
-
-		if ( magicLoginEnabled && queryArguments && queryArguments.action === 'handleLoginEmail' ) {
-			this.props.showMagicLoginInterstitialPage();
 		}
 	}
 
@@ -90,10 +72,11 @@ class MagicLogin extends React.Component {
 
 		return (
 			<Main className="magic-login">
-				<PageViewTracker path="/login" title="Login" />
+				{ /* @todo dynamic title */ }
+				<PageViewTracker path="/log-in/link" title="Magic Login" />
 
 				<GlobalNotices id="notices" notices={ notices.list } />
-
+{ /* @todo investigate key below */ }
 				{ this.magicLoginMainContent() || (
 					<div>
 						<RequestLoginEmailForm />
@@ -123,7 +106,6 @@ const mapState = state => {
 
 const mapDispatch = {
 	hideMagicLoginRequestForm,
-	showMagicLoginInterstitialPage,
 	recordTracksEvent,
 };
 
