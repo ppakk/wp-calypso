@@ -10,9 +10,11 @@ import {
 	flatten,
 	flow,
 	isEqual,
+	map,
 	merge,
 	reject,
 	some,
+	trimStart,
 	tail,
 	uniq,
 } from 'lodash';
