@@ -7,7 +7,7 @@ import { spy } from 'sinon';
 /**
  * Internal dependencies
  */
-import { fetchPaymentMethods, paymentMethodSave } from '../actions';
+import { fetchPaymentMethods, savePaymentMethod } from '../actions';
 import { LOADING } from 'woocommerce/state/constants';
 import useNock from 'test/helpers/use-nock';
 import { useSandbox } from 'test/helpers/use-sinon';
@@ -116,7 +116,7 @@ describe( 'actions', () => {
 		} );
 	} );
 
-	describe( '#paymentMethodSave', () => {
+	describe( '#savePaymentMethod', () => {
 		const siteId = '234';
 
 		const method = {
@@ -171,19 +171,19 @@ describe( 'actions', () => {
 		it( 'should dispatch an action', () => {
 			const getState = () => ( state );
 			const dispatch = spy();
-			paymentMethodSave( siteId, method )( dispatch, getState );
+			savePaymentMethod( siteId, method )( dispatch, getState );
 			expect( dispatch ).to.have.been.calledWith( { type: WOOCOMMERCE_PAYMENT_METHOD_UPDATE, siteId } );
 		} );
 
 		it( 'should dispatch a success action with payment information when request completes', () => {
 			const getState = () => ( state );
 			const dispatch = spy();
-			const response = paymentMethodSave( siteId, method )( dispatch, getState );
+			const response = savePaymentMethod( siteId, method )( dispatch, getState );
 
 			return response.then( () => {
 				expect( dispatch ).to.have.been.calledWith( {
 					siteId: '234',
-					type: 'WOOCOMMERCE_PAYMENT_METHOD_UPDATE'
+					type: WOOCOMMERCE_PAYMENT_METHOD_UPDATE,
 				} );
 				expect( dispatch ).to.have.been.calledWith( {
 					type: WOOCOMMERCE_PAYMENT_METHOD_UPDATE_SUCCESS,
