@@ -12,7 +12,8 @@ import { localize } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import Spinner from 'components/spinner';
-import { getShippingZoneMethods, areShippingZoneMethodsLoaded } from 'woocommerce/state/sites/shipping-zone-methods/selectors';
+import { areShippingZoneMethodsLoaded } from 'woocommerce/state/sites/shipping-zone-methods/selectors';
+import { getShippingZoneMethods } from 'woocommerce/state/ui/shipping/zones/methods/selectors';
 import { openShippingZoneForEdit } from 'woocommerce/state/ui/shipping/zones/actions';
 import { getSelectedSiteId } from 'state/ui/selectors';
 
