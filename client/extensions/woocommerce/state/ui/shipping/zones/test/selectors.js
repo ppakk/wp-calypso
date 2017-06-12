@@ -118,8 +118,8 @@ describe( 'selectors', () => {
 							},
 						},
 						ui: {
-							123: {
-								shipping: {
+							shipping: {
+								123: {
 									zones: {
 										creates: [
 											{ id: { index: 0 }, methodIds: [], name: 'NewZone4' },
@@ -161,8 +161,8 @@ describe( 'selectors', () => {
 							},
 						},
 						ui: {
-							123: {
-								shipping: {
+							shipping: {
+								123: {
 									zones: {
 										creates: [],
 										updates: [],
@@ -197,8 +197,8 @@ describe( 'selectors', () => {
 							},
 						},
 						ui: {
-							123: {
-								shipping: {
+							shipping: {
+								123: {
 									zones: {
 										currentlyEditingId: null,
 									},
@@ -229,8 +229,8 @@ describe( 'selectors', () => {
 							},
 						},
 						ui: {
-							123: {
-								shipping: {
+							shipping: {
+								123: {
 									zones: {
 										creates: [],
 										updates: [ { id: 2, name: 'Potato' } ],
@@ -263,8 +263,8 @@ describe( 'selectors', () => {
 							},
 						},
 						ui: {
-							123: {
-								shipping: {
+							shipping: {
+								123: {
 									zones: {
 										creates: [],
 										updates: [ { id: 1, name: 'MyNewZone' } ],
@@ -295,8 +295,8 @@ describe( 'selectors', () => {
 							},
 						},
 						ui: {
-							123: {
-								shipping: {
+							shipping: {
+								123: {
 									zones: {
 										creates: [ { id: { index: 0 }, name: 'MyNewZone' } ],
 										updates: [],
