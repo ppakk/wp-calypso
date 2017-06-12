@@ -17,8 +17,8 @@ import {
 import { LOADING } from 'woocommerce/state/constants';
 
 describe( 'selectors', () => {
-	describe( 'get shipping zones', () => {
-		it( 'when the zones are being loaded', () => {
+	describe( 'getShippingZones', () => {
+		it( 'should return an empty list when the zones are being loaded', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -37,7 +37,7 @@ describe( 'selectors', () => {
 			expect( getShippingZones( state ) ).to.deep.equal( [] );
 		} );
 
-		it( 'when some zone methods are still being loaded', () => {
+		it( 'should return an empty list when some zone methods are still being loaded', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -59,7 +59,7 @@ describe( 'selectors', () => {
 			expect( getShippingZones( state ) ).to.deep.equal( [] );
 		} );
 
-		it( 'when the zones didn\'t load', () => {
+		it( 'should return an empty list when the zones didn\'t load', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -184,8 +184,8 @@ describe( 'selectors', () => {
 		} );
 	} );
 
-	describe( 'get shipping zone currently being edited', () => {
-		it( 'when there is no zone being edited', () => {
+	describe( 'getCurrentlyEditingShippingZone', () => {
+		it( 'should return null when there is no zone being edited', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -216,7 +216,7 @@ describe( 'selectors', () => {
 			expect( isCurrentlyEditingShippingZone( state ) ).to.be.false;
 		} );
 
-		it( 'when there is a zone being edited, without changes in that zone', () => {
+		it( 'should return the zone being edited, even if there are no changes in that zone', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -251,7 +251,7 @@ describe( 'selectors', () => {
 			expect( isCurrentlyEditingShippingZone( state ) ).to.be.true;
 		} );
 
-		it( 'when there is a zone being edited, with changes in that zone', () => {
+		it( 'should return the zone being edited, with both the committed and non-committed changes overlayed', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -285,7 +285,7 @@ describe( 'selectors', () => {
 			expect( isCurrentlyEditingShippingZone( state ) ).to.be.true;
 		} );
 
-		it( 'when there is a newly created zone being edited', () => {
+		it( 'should return the zone being edited when it is a newly created zone with temporary ID', () => {
 			const state = {
 				extensions: {
 					woocommerce: {
@@ -319,21 +319,21 @@ describe( 'selectors', () => {
 	} );
 
 	describe( 'is shipping zone editable', () => {
-		it( 'when it\'s a locally created zone', () => {
+		it( 'is editable when it\'s a locally created zone', () => {
 			const zoneId = { index: 0 };
 			expect( canChangeShippingZoneTitle( zoneId ) ).to.be.true;
 			expect( canRemoveShippingZone( zoneId ) ).to.be.true;
 			expect( canEditShippingZoneLocations( zoneId ) ).to.be.true;
 		} );
 
-		it( 'when it\'s a regular zone', () => {
+		it( 'is editable when it\'s a regular zone', () => {
 			const zoneId = 7;
 			expect( canChangeShippingZoneTitle( zoneId ) ).to.be.true;
 			expect( canRemoveShippingZone( zoneId ) ).to.be.true;
 			expect( canEditShippingZoneLocations( zoneId ) ).to.be.true;
 		} );
 
-		it( 'when it\'s the "Rest Of The World" zone', () => {
+		it( 'is NOT editable when it\'s the "Rest Of The World" zone', () => {
 			const zoneId = 0;
 			expect( canChangeShippingZoneTitle( zoneId ) ).to.be.false;
 			expect( canRemoveShippingZone( zoneId ) ).to.be.false;
