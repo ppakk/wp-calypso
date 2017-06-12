@@ -28,7 +28,9 @@ const ShippingZone = ( { translate, id, name, methods, loaded, siteId, ...props 
 		);
 	};
 
-	const renderMethods = () => {
+	const onEditClick = () => ( props.openShippingZoneForEdit( siteId, id ) );
+
+	const renderDetails = () => {
 		if ( ! loaded ) {
 			return (
 				<div className="shipping__loading-spinner">
@@ -37,10 +39,19 @@ const ShippingZone = ( { translate, id, name, methods, loaded, siteId, ...props 
 			);
 		}
 
-		return Object.keys( methods ).map( renderMethod );
+		return [
+			(
+			<div className="shipping__zones-row-methods" key={ 0 }>
+				{ Object.keys( methods ).map( renderMethod ) }
+			</div>
+			),
+			(
+			<div className="shipping__zones-row-actions" key={ 1 }>
+				<Button compact onClick={ onEditClick }>{ translate( 'Edit' ) }</Button>
+			</div>
+			)
+		];
 	};
-
-	const onEditClick = () => ( props.openShippingZoneForEdit( siteId, id ) );
 
 	const icon = 0 === id ? 'globe' : 'location';
 
@@ -53,12 +64,7 @@ const ShippingZone = ( { translate, id, name, methods, loaded, siteId, ...props 
 				<p className="shipping__zones-row-location-name">{ name }</p>
 				{ /*<p className="shipping__zones-row-location-description">{ locationDescription }</p>*/ }
 			</div>
-			<div className="shipping__zones-row-methods">
-				{ renderMethods() }
-			</div>
-			<div className="shipping__zones-row-actions">
-				<Button compact onClick={ onEditClick }>{ translate( 'Edit' ) }</Button>
-			</div>
+			{ renderDetails() }
 		</div>
 	);
 };

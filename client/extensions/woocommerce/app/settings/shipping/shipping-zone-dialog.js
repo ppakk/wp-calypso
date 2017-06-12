@@ -22,7 +22,10 @@ import {
 	getCurrentlyEditingShippingZone
 } from 'woocommerce/state/ui/shipping/zones/selectors';
 import { addMethodToShippingZone } from 'woocommerce/state/ui/shipping/zones/methods/actions';
-import { getCurrentlyEditingShippingZoneMethods } from 'woocommerce/state/ui/shipping/zones/methods/selectors';
+import {
+	getCurrentlyEditingShippingZoneMethods,
+	getNewMethodTypeOptions
+} from 'woocommerce/state/ui/shipping/zones/methods/selectors';
 import {
 	changeShippingZoneName,
 	closeEditingShippingZone,
@@ -39,14 +42,14 @@ class ShippingZoneDialog extends Component {
 	}
 
 	render() {
-		const { zone, methods, siteId, translate, isVisible } = this.props;
+		const { zone, methods, siteId, translate, newMethodTypeOptions, isVisible } = this.props;
 		const { id, name } = zone || {};
 		const isEditing = isNumber( id );
 
 		const onCancel = () => ( this.props.cancelEditingShippingZone( siteId ) );
 		const onClose = () => ( this.props.closeEditingShippingZone( siteId ) );
 		const onNameChange = ( event ) => ( this.props.changeShippingZoneName( siteId, event.target.value ) );
-		const addMethod = () => ( this.props.addMethodToShippingZone( siteId, 'flat_rate' ) );
+		const addMethod = () => ( this.props.addMethodToShippingZone( siteId, newMethodTypeOptions[ 0 ] ) );
 
 		const onLocationChange = ( location ) => {
 			this.setState( { location } );
@@ -103,6 +106,7 @@ ShippingZoneDialog.propTypes = {
 export default connect(
 	( state ) => ( {
 		isVisible: isCurrentlyEditingShippingZone( state ),
+		newMethodTypeOptions: getNewMethodTypeOptions( state ),
 		zone: getCurrentlyEditingShippingZone( state ),
 		methods: getCurrentlyEditingShippingZoneMethods( state )
 	} ),

@@ -65,7 +65,7 @@ class ShippingZoneList extends Component {
 	}
 
 	render() {
-		const { siteId, translate } = this.props;
+		const { siteId, loaded, translate } = this.props;
 
 		const onAddZoneClick = () => ( this.props.addNewShippingZone( siteId ) );
 
@@ -74,7 +74,7 @@ class ShippingZoneList extends Component {
 				<ExtendedHeader
 					label={ translate( 'Shipping Zones' ) }
 					description={ translate( 'The regions you ship to and the methods you will provide.' ) }>
-					<Button onClick={ onAddZoneClick }>{ translate( 'Add zone' ) }</Button>
+					<Button onClick={ onAddZoneClick } disabled={ ! loaded }>{ translate( 'Add zone' ) }</Button>
 				</ExtendedHeader>
 				<Card className="shipping__zones">
 					{ this.renderContent() }
