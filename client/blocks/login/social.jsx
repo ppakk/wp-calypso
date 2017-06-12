@@ -42,7 +42,7 @@ class SocialLoginForm extends Component {
 				() => {
 					recordEvent( 'calypso_social_login_form_login_success' );
 
-					this.props.onSuccess()
+					this.props.onSuccess();
 				},
 				error => {
 					if ( error.code === 'unknown_user' ) {
