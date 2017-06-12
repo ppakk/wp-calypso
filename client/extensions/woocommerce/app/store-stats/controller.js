@@ -29,7 +29,7 @@ function getQueryDate( context ) {
 	const today = moment();
 	const startDate = moment( context.query.startDate ); // Defaults to today if startDate undefined
 	const unitQuantity = unitConfig.quantity;
-	const duration = Math.floor( moment.duration( today - startDate )[ unitConfig.durationFn ]() );
+	const duration = moment.duration( today - startDate )[ unitConfig.durationFn ]();
 	const periods = Math.floor( duration / unitQuantity ) * unitQuantity;
 	return today.subtract( periods, unitConfig.label ).format( 'YYYY-MM-DD' );
 }
