@@ -18,7 +18,7 @@ class GoogleLoginButton extends Component {
 		fetchBasicProfile: PropTypes.bool,
 		responseHandler: PropTypes.func.isRequired,
 		translate: PropTypes.func.isRequired,
-		overrideText: PropTypes.string,
+		label: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -153,7 +153,7 @@ class GoogleLoginButton extends Component {
 					{ /* eslint-enable max-len */ }
 
 					<span className="social-buttons__service-name">
-						{ this.props.overrideText || this.props.translate( 'Continue with %(service)s', {
+						{ this.props.label || this.props.translate( 'Continue with %(service)s', {
 							args: { service: 'Google' },
 							comment: '%(service)s is the name of a Social Network, e.g. "Google", "Facebook", "Twitter" ...'
 						} ) }

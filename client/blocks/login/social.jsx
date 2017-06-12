@@ -72,7 +72,7 @@ class SocialLoginForm extends Component {
 					<GoogleLoginButton
 						clientId={ config( 'google_oauth_client_id' ) }
 						responseHandler={ this.handleGoogleResponse }
-						overrideText={ this.props.isSocialAccountCreating
+						label={ this.props.isSocialAccountCreating
 							? this.props.translate( 'Creating your account…' )
 							: null }
 					/>
