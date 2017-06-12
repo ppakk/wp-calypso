@@ -57,7 +57,7 @@ class ShippingZoneDialog extends Component {
 
 		const renderShippingMethod = ( method, index ) => {
 			return (
-				<ShippingZoneMethod key={ index } { ...method } />
+				<ShippingZoneMethod key={ index } siteId={ siteId } { ...method } />
 			);
 		};
 

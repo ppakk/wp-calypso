@@ -14,8 +14,12 @@ import FormTextInput from 'components/forms/form-text-input';
 import FormToggle from 'components/forms/form-toggle';
 import FormSelect from 'components/forms/form-select';
 import { getNewMethodTypeOptions } from 'woocommerce/state/ui/shipping/zones/methods/selectors';
+import {
+	changeShippingZoneMethodTitle,
+	changeShippingZoneMethodType
+} from 'woocommerce/state/ui/shipping/zones/methods/actions';
 
-const ShippingZoneMethod = ( { enabled, methodType, newMethodTypeOptions, method_title, translate } ) => {
+const ShippingZoneMethod = ( { siteId, id, enabled, methodType, newMethodTypeOptions, method_title, translate, ...props } ) => {
 	const methodNames = {
 		flat_rate: translate( 'Flat Rate' ),
 		free_shipping: translate( 'Free Shipping' ),
@@ -34,12 +38,16 @@ const ShippingZoneMethod = ( { enabled, methodType, newMethodTypeOptions, method
 		return options;
 	};
 
+	const onMethodTitleChange = ( event ) => ( props.changeShippingZoneMethodTitle( siteId, id, event.target.value ) );
+	const onMethodTypeChange = ( event ) => ( props.changeShippingZoneMethodType( siteId, id, event.target.value ) );
+
 	return (
 		<div>
-			<FormTextInput value={ method_title } />
+			<FormTextInput value={ method_title } onChange={ onMethodTitleChange } />
 			<FormToggle checked={ enabled } />
 			<FormSelect
-				value={ methodType } >
+				value={ methodType }
+				onChange={ onMethodTypeChange }>
 				{ renderMethodTypeOptions() }
 			</FormSelect>
 		</div>
@@ -47,6 +55,7 @@ const ShippingZoneMethod = ( { enabled, methodType, newMethodTypeOptions, method
 };
 
 ShippingZoneMethod.propTypes = {
+	siteId: PropTypes.number,
 	zoneId: PropTypes.oneOfType( [ PropTypes.number, PropTypes.object ] ),
 	enabled: PropTypes.bool,
 	id: PropTypes.oneOfType( [ PropTypes.number, PropTypes.object ] ),
@@ -59,5 +68,8 @@ export default connect(
 	( state ) => ( {
 		newMethodTypeOptions: getNewMethodTypeOptions( state )
 	} ),
-	( dispatch ) => ( bindActionCreators( {}, dispatch ) )
+	( dispatch ) => ( bindActionCreators( {
+		changeShippingZoneMethodTitle,
+		changeShippingZoneMethodType
+	}, dispatch ) )
 )( localize( ShippingZoneMethod ) );
