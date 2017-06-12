@@ -167,7 +167,7 @@ export const getRequestNotice = ( state ) => {
  * @param  {Object}   state  Global state tree
  * @return {?Boolean}         Error for the request.
  */
-export const isSocialAccountCreating = ( state ) => get( state, 'login.socialAccount.creating', null );
+export const isSocialAccountCreating = ( state ) => get( state, 'login.socialAccount.isCreating', null );
 
 /***
  * Gets Username of the created social account

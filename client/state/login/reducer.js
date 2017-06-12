@@ -82,11 +82,11 @@ export const twoFactorAuthPushPoll = createReducer( { inProgress: false, success
 	[ TWO_FACTOR_AUTHENTICATION_PUSH_POLL_COMPLETED ]: state => ( { ...state, inProgress: false, success: true } ),
 } );
 
-export const socialAccount = createReducer( { creating: false }, {
-	[ SOCIAL_CREATE_ACCOUNT_REQUEST ]: () => ( { creating: true } ),
-	[ SOCIAL_CREATE_ACCOUNT_FAILURE ]: ( state, { error } ) => ( { creating: false, createError: error } ),
+export const socialAccount = createReducer( { isCreating: false }, {
+	[ SOCIAL_CREATE_ACCOUNT_REQUEST ]: () => ( { isCreating: true } ),
+	[ SOCIAL_CREATE_ACCOUNT_FAILURE ]: ( state, { error } ) => ( { isCreating: false, createError: error } ),
 	[ SOCIAL_CREATE_ACCOUNT_SUCCESS ]: ( state, { data: { username, bearerToken } } ) => ( {
-		creating: false,
+		isCreating: false,
 		username,
 		bearerToken
 	} ),
