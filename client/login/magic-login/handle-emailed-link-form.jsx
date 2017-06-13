@@ -4,7 +4,6 @@
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import emailValidator from 'email-validator';
 import {
 	includes,
 	intersection,
@@ -17,13 +16,16 @@ import debugFactory from 'debug';
  */
 import Button from 'components/button';
 import EmptyContent from 'components/empty-content';
+import EmailedLoginLinkExpired from './emailed-login-link-expired';
 import config from 'config';
 import { localize } from 'i18n-calypso';
+import { LINK_EXPIRED_PAGE } from 'state/login/magic-login/constants';
 import {
 	fetchMagicLoginAuthenticate,
 	showMagicLoginLinkExpiredPage,
 } from 'state/login/magic-login/actions';
 import {
+	getMagicLoginCurrentView,
 	getMagicLoginRequestAuthError,
 	getMagicLoginRequestedAuthSuccessfully,
 	isFetchingMagicLoginAuth,
@@ -34,8 +36,8 @@ import {
 	isTwoFactorEnabled,
 } from 'state/login/selectors';
 import { getCurrentUser } from 'state/current-user/selectors';
-import { getCurrentQueryArguments } from 'state/ui/selectors';
 
+const { PropTypes } = React;
 const debug = debugFactory( 'calypso:magic-login' );
 
 const ALLOWED_SECOND_FACTORS = [
@@ -44,6 +46,31 @@ const ALLOWED_SECOND_FACTORS = [
 ];
 
 class HandleEmailedLinkForm extends React.Component {
+	static propTypes = {
+		// Passed props
+		clientId: PropTypes.string.isRequired,
+		emailAddress: PropTypes.string.isRequired,
+		token: PropTypes.string.isRequired,
+		tokenTime: PropTypes.string.isRequired,
+
+		// Connected props
+		authError: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.number,
+		] ),
+		currentUser: PropTypes.object,
+		isAuthenticated: PropTypes.bool,
+		isExpired: PropTypes.bool,
+		isFetching: PropTypes.bool,
+		isTwoFactor: PropTypes.bool,
+		twoFactorAuthTypes: PropTypes.array,
+		twoFactorNotificationSent: PropTypes.bool,
+
+		// Conntected action creators
+		fetchMagicLoginAuthenticate: PropTypes.func.isRequired,
+		showMagicLoginLinkExpiredPage: PropTypes.func.isRequired,
+	};
+
 	state = {
 		hasSubmitted: false,
 	};
@@ -58,29 +85,21 @@ class HandleEmailedLinkForm extends React.Component {
 		this.props.fetchMagicLoginAuthenticate( this.props.emailAddress, this.props.token, this.props.tokenTime );
 	};
 
-	componentWillMount() {
-		const { emailAddress, token, tokenTime } = this.props;
-
-		if ( emailAddress && emailValidator.validate( emailAddress ) && token && tokenTime ) {
-			return;
-		}
-
-		this.props.showMagicLoginLinkExpiredPage();
-	}
-
 	componentWillUpdate( nextProps, nextState ) {
-		if ( ! nextState.hasSubmitted ) {
-			return;
-		}
-
 		const {
 			isAuthenticated,
+			isFetching,
 			isTwoFactor,
 			twoFactorAuthTypes,
 			twoFactorNotificationSent,
 		} = nextProps;
 
-		// console.log( 'ohai', nextProps );
+		if ( ! nextState.hasSubmitted || isFetching ) {
+			// Don't do anything here unless the browser has received the `POST` response
+			// console.log('bailing early');
+			return;
+		}
+		// console.log('submitted & not fetching', {nextProps});
 
 		if ( nextProps.authError || ! isAuthenticated ) {
 			// @TODO if this is a 5XX, or timeout, show an error...?
@@ -120,9 +139,14 @@ class HandleEmailedLinkForm extends React.Component {
 		const {
 			currentUser,
 			emailAddress,
+			isExpired,
 			isFetching,
 			translate,
 		} = this.props;
+
+		if ( isExpired ) {
+			return <EmailedLoginLinkExpired />;
+		}
 
 		const action = (
 			<Button primary disabled={ this.state.hasSubmitted } onClick={ this.handleSubmit }>
@@ -158,6 +182,7 @@ class HandleEmailedLinkForm extends React.Component {
 			<EmptyContent
 				action={ action }
 				className={ classNames( {
+					'magic-login__handle-link': true,
 					'magic-login__is-fetching-auth': isFetching,
 				} ) }
 				illustration={ '/calypso/images/illustrations/illustration-nosites.svg' }
@@ -170,27 +195,15 @@ class HandleEmailedLinkForm extends React.Component {
 }
 
 const mapState = state => {
-	const queryArguments = getCurrentQueryArguments( state );
-	const {
-		client_id: clientId,
-		email: emailAddress,
-		token,
-		tt: tokenTime
-	} = queryArguments;
-
 	return {
 		authError: getMagicLoginRequestAuthError( state ),
-		// @TODO the following isn't working quite right
+		currentUser: getCurrentUser( state ),
 		isAuthenticated: getMagicLoginRequestedAuthSuccessfully( state ),
+		isExpired: getMagicLoginCurrentView( state ) === LINK_EXPIRED_PAGE,
 		isFetching: isFetchingMagicLoginAuth( state ),
 		isTwoFactor: isTwoFactorEnabled( state ),
 		twoFactorAuthTypes: getTwoFactorSupportedAuthTypes( state ) || [],
 		twoFactorNotificationSent: getTwoFactorNotificationSent( state ),
-		currentUser: getCurrentUser( state ),
-		clientId,
-		emailAddress,
-		token,
-		tokenTime,
 	};
 };
 

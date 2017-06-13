@@ -14,7 +14,6 @@ import notices from 'notices';
 import { login } from 'lib/paths';
 import {
 	CHECK_YOUR_EMAIL_PAGE,
-	LINK_EXPIRED_PAGE,
 } from 'state/login/magic-login/constants';
 import {
 	getMagicLoginEmailAddressFormInput,
@@ -27,7 +26,6 @@ import {
 import { recordTracksEvent } from 'state/analytics/actions';
 import Main from 'components/main';
 import EmailedLoginLinkSuccessfully from './emailed-login-link-successfully';
-import EmailedLoginLinkExpired from './emailed-login-link-expired';
 import RequestLoginEmailForm from './request-login-email-form';
 import PageViewTracker from 'lib/analytics/page-view-tracker';
 import GlobalNotices from 'components/global-notices';
@@ -56,9 +54,6 @@ class MagicLogin extends React.Component {
 		} = this.props;
 
 		switch ( magicLoginView ) {
-			case LINK_EXPIRED_PAGE:
-				this.props.recordTracksEvent( 'calypso_login_magic_link_expired_link_view' );
-				return <EmailedLoginLinkExpired />;
 			case CHECK_YOUR_EMAIL_PAGE:
 				this.props.recordTracksEvent( 'calypso_login_magic_link_link_sent_view' );
 				return <EmailedLoginLinkSuccessfully emailAddress={ magicLoginEmailAddress } />;

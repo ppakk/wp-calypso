@@ -2,12 +2,14 @@
  * External dependencies
  */
 import React from 'react';
+import emailValidator from 'email-validator';
 
 /**
  * Internal dependencies
  */
 import WPLogin from './wp-login';
 import MagicLogin from './magic-login';
+import EmailedLoginLinkExpired from './magic-login/emailed-login-link-expired';
 import HandleEmailedLinkForm from './magic-login/handle-emailed-link-form';
 
 export default {
@@ -19,16 +21,26 @@ export default {
 		);
 		next();
 	},
+
 	magicLogin( context, next ) {
 		context.primary = <MagicLogin />;
 		next();
 	},
 
 	magicLoginUse( context, next ) {
-// @todo record some event
-//				this.props.recordTracksEvent( 'calypso_login_magic_link_interstitial_view' );
-		context.primary = <HandleEmailedLinkForm />;
+		// queryArguments isn't set in redux in time for this initial render -- pull 'em out here.
+		const {
+			client_id,
+			email,
+			token,
+			tt,
+		} = context.query;
 
+		if ( email && emailValidator.validate( email ) && token && tt ) {
+			context.primary = <HandleEmailedLinkForm clientId={ client_id } emailAddress={ email } token={ token } tokenTime={ tt } />;
+		} else {
+			context.primary = <EmailedLoginLinkExpired />;
+		}
 		next();
 	},
 };

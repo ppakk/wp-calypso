@@ -16,6 +16,7 @@ import {
 	MAGIC_LOGIN_HIDE_REQUEST_NOTICE,
 	MAGIC_LOGIN_REQUEST_AUTH_ERROR,
 	MAGIC_LOGIN_REQUEST_AUTH_FETCH,
+	MAGIC_LOGIN_REQUEST_AUTH_SUCCESS,
 	MAGIC_LOGIN_REQUEST_LOGIN_EMAIL_ERROR,
 	MAGIC_LOGIN_REQUEST_LOGIN_EMAIL_FETCH,
 	MAGIC_LOGIN_REQUEST_LOGIN_EMAIL_SUCCESS,
@@ -81,48 +82,45 @@ const authError = error => {
 	};
 };
 
+const authSuccess = () => {
+	return {
+		type: MAGIC_LOGIN_REQUEST_AUTH_SUCCESS,
+	};
+};
+
+// @TODO should this move to `/state/data-layer`..?
 export const fetchMagicLoginAuthenticate = ( email, token, tt ) => dispatch => {
 	dispatch( { type: MAGIC_LOGIN_REQUEST_AUTH_FETCH } );
-
-	const postData = {
-		client_id: config( 'wpcom_signup_id' ),
-		client_secret: config( 'wpcom_signup_key' ),
-		email,
-		token,
-		tt,
-	};
 
 	request
 		.post( AUTHENTICATE_URL )
 		.withCredentials()
-		.send( postData )
 		.set( {
 			Accept: 'application/json',
 			'Content-Type': 'application/x-www-form-urlencoded',
 		} )
-		.end( ( error, response ) => {
-			const { ok, statusCode } = response;
+		.send( {
+			client_id: config( 'wpcom_signup_id' ),
+			client_secret: config( 'wpcom_signup_key' ),
+			email,
+			token,
+			tt,
+		} )
+		.then( ( response ) => {
+			const data = get( response, 'body.data' );
+			//const user_id = data ? data.user_id : null;
 
-			if ( error && ! response ) {
-				dispatch( authError( statusCode || 500 ) );
-				return;
-			}
-			// console.log({ok,statusCode});
-			if ( ok && statusCode === 200 ) {
-				const data = get( response, 'body.data', {} );
-				const { user_id } = data;
-				// console.log('suppp', data);
-
-				dispatch( {
-					type: LOGIN_REQUEST_SUCCESS,
-					usernameOrEmail: user_id,
-					// rememberMe: 1,
-					data: data,
-				} );
-				return;
-			}
-
-			dispatch( authError( statusCode || 403 ) );
+			dispatch( {
+				type: LOGIN_REQUEST_SUCCESS,
+				data,
+				// @TODO figure out if we should use `rememberMe`...
+				// rememberMe: 1,
+			} );
+			dispatch( authSuccess() );
+		} )
+		.catch( ( error ) => {
+			const { status } = error;
+			dispatch( authError( status ) );
 		} );
 };
 
