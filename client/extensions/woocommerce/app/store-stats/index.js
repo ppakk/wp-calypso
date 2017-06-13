@@ -17,15 +17,15 @@ import DatePicker from 'my-sites/stats/stats-date-picker';
 
 class StoreStats extends Component {
 	static propTypes = {
-		siteId: PropTypes.number,
-		unit: PropTypes.string.isRequired,
-		startDate: PropTypes.string,
 		path: PropTypes.string.isRequired,
+		siteId: PropTypes.number,
+		startDate: PropTypes.string,
+		unit: PropTypes.string.isRequired,
+		type: PropTypes.string.isRequired,
 	};
 
 	render() {
-		const { siteId, unit, startDate, path, slug } = this.props;
-		console.log('orders');
+		const { path, siteId, slug, startDate, type, unit } = this.props;
 		const today = moment().format( 'YYYY-MM-DD' );
 		const selectedDate = startDate || today;
 		const ordersQuery = {
@@ -35,7 +35,7 @@ class StoreStats extends Component {
 		};
 		return (
 			<Main className="store-stats woocommerce" wideLayout={ true }>
-				<Navigation unit={ unit } type="orders" slug={ slug } />
+				<Navigation unit={ unit } type={ type } slug={ slug } />
 				<Chart
 					path={ path }
 					query={ ordersQuery }

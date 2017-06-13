@@ -12,7 +12,6 @@ import { renderWithReduxStore } from 'lib/react-helpers';
 import AsyncLoad from 'components/async-load';
 import StatsPagePlaceholder from 'my-sites/stats/stats-page-placeholder';
 
-
 function isValidParameters( context ) {
 	const validParameters = {
 		type: [ 'orders', 'products', 'categories', 'coupons' ],
@@ -28,10 +27,11 @@ export default function StatsController( context ) {
 	}
 
 	const props = {
-		type: context.params.type,
-		unit: context.params.unit,
+		context: context,
 		path: context.pathname,
 		startDate: context.query.startDate,
+		type: context.params.type,
+		unit: context.params.unit,
 	};
 	const asyncComponent = ( props.type === 'orders' )
 		? <AsyncLoad
