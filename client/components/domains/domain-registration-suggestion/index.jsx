@@ -27,6 +27,10 @@ class DomainRegistrationSuggestion extends React.Component {
 		selectedSite: React.PropTypes.object
 	};
 
+	onButtonClick = () => {
+		this.props.onButtonClick( this.props.suggestion );
+	};
+
 	render() {
 		const { cart, domainsWithPlansOnly, isSignupStep, selectedSite, suggestion, translate } = this.props;
 		const domain = suggestion.domain_name;
@@ -102,7 +106,7 @@ class DomainRegistrationSuggestion extends React.Component {
 					buttonContent={ buttonContent }
 					cart={ cart }
 					domainsWithPlansOnly={ domainsWithPlansOnly }
-					onButtonClick={ this.props.onButtonClick }>
+					onButtonClick={ this.onButtonClick }>
 				<h3>
 					{ domain }
 					{ domainFlags }
