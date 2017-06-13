@@ -13,8 +13,8 @@ import Gridicon from 'gridicons';
 import DomainSuggestionFlag from 'components/domains/domain-suggestion-flag';
 import { shouldBundleDomainWithPlan, getDomainPriceRule, hasDomainInCart } from 'lib/cart-values/cart-items';
 
-const DomainRegistrationSuggestion = React.createClass( {
-	propTypes: {
+class DomainRegistrationSuggestion extends React.Component {
+	static propTypes = {
 		isSignupStep: React.PropTypes.bool,
 		cart: React.PropTypes.object,
 		suggestion: React.PropTypes.shape( {
@@ -25,13 +25,13 @@ const DomainRegistrationSuggestion = React.createClass( {
 		onButtonClick: React.PropTypes.func.isRequired,
 		domainsWithPlansOnly: React.PropTypes.bool.isRequired,
 		selectedSite: React.PropTypes.object
-	},
+	};
 
 	render() {
-		const { cart, domainsWithPlansOnly, isSignupStep, selectedSite, suggestion, translate } = this.props,
-			domain = suggestion.domain_name,
-			isAdded = hasDomainInCart( cart, domain ),
-			domainFlags = [];
+		const { cart, domainsWithPlansOnly, isSignupStep, selectedSite, suggestion, translate } = this.props;
+		const domain = suggestion.domain_name;
+		const isAdded = hasDomainInCart( cart, domain );
+		const domainFlags = [];
 
 		let buttonClasses, buttonContent;
 
@@ -110,6 +110,6 @@ const DomainRegistrationSuggestion = React.createClass( {
 			</DomainSuggestion>
 		);
 	}
-} );
+}
 
 export default localize( DomainRegistrationSuggestion );
