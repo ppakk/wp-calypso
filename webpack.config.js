@@ -69,12 +69,16 @@ const webpackConfig = {
 		extensions: [ '.json', '.js', '.jsx' ],
 		modules: [
 			path.join( __dirname, 'client' ),
-			path.join( __dirname, 'client', 'extensions' ),
 			path.join( __dirname, 'node_modules' ),
 		],
 		alias: {
 			'react-virtualized': 'react-virtualized/dist/commonjs',
-			'social-logos/example': 'social-logos/build/example'
+			'social-logos/example': 'social-logos/build/example',
+			'hello-dolly': path.join( __dirname, 'client', 'extensions', 'hello-dolly' ),
+			'sensei': path.join( __dirname, 'client', 'extensions', 'sensei' ),
+			'woocommerce': path.join( __dirname, 'client', 'extensions', 'woocommerce' ),
+			'wp-job-manager': path.join( __dirname, 'client', 'extensions', 'wp-job-manager' ),
+			'wp-super-cache': path.join( __dirname, 'client', 'extensions', 'wp-super-cache' ),
 		}
 	},
 	node: {
