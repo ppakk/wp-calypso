@@ -20,6 +20,10 @@ function middleware( app ) {
 
 	app.set( 'compiler', compiler );
 
+	compiler.apply( new webpack.ProgressPlugin( {
+		profile: true,
+	} ) );
+
 	compiler.plugin( 'done', function( stats ) {
 		built = true;
 		assets = utils.getAssets( stats.toJson() );

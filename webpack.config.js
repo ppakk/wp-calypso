@@ -24,7 +24,6 @@ const bundleEnv = config( 'env' );
 
 const webpackConfig = {
 	bail: calypsoEnv !== 'development',
-	cache: true,
 	entry: {},
 	devtool: '#eval',
 	output: {
