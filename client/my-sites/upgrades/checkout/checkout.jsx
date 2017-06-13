@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
-import { flatten, find, isEmpty, isEqual, reduce, startsWith } from 'lodash';
+import { flatten, find, isEmpty, isEqual, pick, reduce, startsWith } from 'lodash';
 import i18n, { localize } from 'i18n-calypso';
 import page from 'page';
 import React from 'react';
@@ -129,14 +129,17 @@ const Checkout = React.createClass( {
 		const { product, productsList, purchaseId, selectedSiteSlug } = this.props;
 		const [ productSlug, meta ] = product.split( ':' );
 
-		let cartItem = Object.assign( { meta }, productsList.data[ productSlug ] );
-
-		if ( purchaseId ) {
-			cartItem = cartItems.getRenewalItemFromCartItem( cartItem, {
-				id: purchaseId,
-				domain: selectedSiteSlug
-			} );
+		if ( ! purchaseId || ! productsList.data[ productSlug ] ) {
+			return;
 		}
+
+		const cartItem = cartItems.getRenewalItemFromCartItem( {
+			meta,
+			product_slug: productSlug
+		}, {
+			id: purchaseId,
+			domain: selectedSiteSlug
+		} );
 
 		upgradesActions.addItem( cartItem );
 	},
