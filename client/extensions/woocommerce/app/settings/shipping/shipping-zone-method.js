@@ -19,7 +19,7 @@ import {
 	changeShippingZoneMethodType
 } from 'woocommerce/state/ui/shipping/zones/methods/actions';
 
-const ShippingZoneMethod = ( { siteId, id, enabled, methodType, newMethodTypeOptions, method_title, translate, ...props } ) => {
+const ShippingZoneMethod = ( { siteId, id, enabled, methodType, newMethodTypeOptions, title, translate, ...props } ) => {
 	const methodNames = {
 		flat_rate: translate( 'Flat Rate' ),
 		free_shipping: translate( 'Free Shipping' ),
@@ -43,7 +43,7 @@ const ShippingZoneMethod = ( { siteId, id, enabled, methodType, newMethodTypeOpt
 
 	return (
 		<div>
-			<FormTextInput value={ method_title } onChange={ onMethodTitleChange } />
+			<FormTextInput value={ title || '' } onChange={ onMethodTitleChange } />
 			<FormToggle checked={ enabled } />
 			<FormSelect
 				value={ methodType }
@@ -60,7 +60,7 @@ ShippingZoneMethod.propTypes = {
 	enabled: PropTypes.bool,
 	id: PropTypes.oneOfType( [ PropTypes.number, PropTypes.object ] ),
 	methodType: PropTypes.string,
-	method_title: PropTypes.string,
+	title: PropTypes.string,
 	settings: PropTypes.object,
 };
 

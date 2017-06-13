@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Gridicon from 'gridicons';
 import { localize } from 'i18n-calypso';
+import { isNumber } from 'lodash';
 
 /**
  * Internal dependencies
@@ -16,13 +17,15 @@ import { areShippingZoneMethodsLoaded } from 'woocommerce/state/sites/shipping-z
 import { getShippingZoneMethods } from 'woocommerce/state/ui/shipping/zones/methods/selectors';
 import { openShippingZoneForEdit } from 'woocommerce/state/ui/shipping/zones/actions';
 
-const ShippingZone = ( { translate, id, name, methods, loaded, siteId, ...props } ) => {
+const ShippingZone = ( { translate, id, name, methods, methodsLoaded, siteId, ...props } ) => {
+	const loaded = methodsLoaded || ! isNumber( id );
+
 	const renderMethod = ( methodKey ) => {
 		const method = methods[ methodKey ];
 
 		return (
 			<div key={ methodKey } className="shipping__zones-row-method">
-				<p className="shipping__zones-row-method-name">{ method.method_title }</p>
+				<p className="shipping__zones-row-method-name">{ method.title }</p>
 				{ /*<p className="shipping__zones-row-method-description">{ method.method_description }</p>*/ }
 			</div>
 		);
@@ -78,7 +81,7 @@ ShippingZone.propTypes = {
 export default connect(
 	( state, ownProps ) => ( {
 		methods: getShippingZoneMethods( state, ownProps.id ),
-		loaded: areShippingZoneMethodsLoaded( state, ownProps.id )
+		methodsLoaded: areShippingZoneMethodsLoaded( state, ownProps.id )
 	} ),
 	( dispatch ) => (
 		bindActionCreators( {
