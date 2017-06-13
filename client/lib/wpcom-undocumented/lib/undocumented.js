@@ -2297,6 +2297,15 @@ Undocumented.prototype.initiateTransfer = function( siteId, plugin, theme, onPro
 	} );
 };
 
+/**
+ * Returns a list of media from an external media service. Similar to Site.mediaList in use, but
+ * with a more restricted set of query params.
+ *
+ * @param {Object} query - Media query, supports 'path', 'search', 'max', 'page_handle', and 'source'
+ * @param {Function} fn - The callback function
+ *
+ * @returns {Promise} promise for handling result
+ */
 Undocumented.prototype.externalMediaList = function( query, fn ) {
 	debug( `/meta/external-media/${ query.source }` );
 
