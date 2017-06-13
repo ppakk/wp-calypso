@@ -12,9 +12,10 @@ import { renderWithReduxStore } from 'lib/react-helpers';
 import AsyncLoad from 'components/async-load';
 import StatsPagePlaceholder from 'my-sites/stats/stats-page-placeholder';
 
+
 function isValidParameters( context ) {
 	const validParameters = {
-		type: [ 'orders' ],
+		type: [ 'orders', 'products', 'categories', 'coupons' ],
 		unit: [ 'day', 'week', 'month', 'year' ],
 	};
 	return Object.keys( validParameters )
@@ -32,14 +33,23 @@ export default function StatsController( context ) {
 		path: context.pathname,
 		startDate: context.query.startDate,
 	};
-	renderWithReduxStore(
-		<AsyncLoad
+	const asyncComponent = ( props.type === 'orders' )
+		? <AsyncLoad
 			/* eslint-disable wpcalypso/jsx-classname-namespace */
 			placeholder={ <StatsPagePlaceholder className="woocommerce" /> }
 			/* eslint-enable wpcalypso/jsx-classname-namespace */
 			require="extensions/woocommerce/app/store-stats"
 			{ ...props }
-		/>,
+		/>
+		: <AsyncLoad
+			/* eslint-disable wpcalypso/jsx-classname-namespace */
+			placeholder={ <StatsPagePlaceholder className="woocommerce" /> }
+			/* eslint-enable wpcalypso/jsx-classname-namespace */
+			require="extensions/woocommerce/app/store-stats/listview"
+			{ ...props }
+		/>;
+	renderWithReduxStore(
+		asyncComponent,
 		document.getElementById( 'primary' ),
 		context.store
 	);

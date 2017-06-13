@@ -25,7 +25,7 @@ class StoreStats extends Component {
 
 	render() {
 		const { siteId, unit, startDate, path, slug } = this.props;
-		console.log('orders');
+		console.log('listveiw');
 		const today = moment().format( 'YYYY-MM-DD' );
 		const selectedDate = startDate || today;
 		const ordersQuery = {
