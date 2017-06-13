@@ -26,7 +26,8 @@
 	margin-bottom: 5px;
 }
 
-.login__form-action {
+.login__form-action,
+.magic-login__form-action {
 	margin-top: 10px;
 	overflow: auto;
 
@@ -35,7 +36,8 @@
 	}
 }
 
-.login__form-header {
+.login__form-header,
+.magic-login__formheader {
 	font-size: 22px;
 	margin-bottom: 24px;
 	margin-top: 16px;
@@ -93,7 +95,8 @@
 	margin: 0 10px 10px;
 }
 
-.wp-login__footer {
+.wp-login__footer,
+.magic-login__footer {
 	a {
 		font-size: 14px;
 
