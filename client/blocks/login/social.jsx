@@ -53,7 +53,7 @@ class SocialLoginForm extends Component {
 									'calypso_social_login_form_signup_fail',
 									{ error: createAccountError.message }
 								)
-							)
+							);
 					}
 
 					recordEvent( 'calypso_social_login_form_login_fail', { error: error.message } );
