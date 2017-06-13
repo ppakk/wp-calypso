@@ -65,11 +65,15 @@ const webpackConfig = {
 			{
 				include: /node_modules[\/\\]tinymce/,
 				loader: 'imports?this=>window',
+			},
+			{
+				test: /\.(ml|re)$/,
+				loader: 'bs-loader',
 			}
 		]
 	},
 	resolve: {
-		extensions: [ '', '.json', '.js', '.jsx' ],
+		extensions: [ '', '.json', '.js', '.jsx', '.ml', '.re' ],
 		root: [ path.join( __dirname, 'client' ), path.join( __dirname, 'client', 'extensions' ) ],
 		modulesDirectories: [ 'node_modules' ],
 		alias: {
