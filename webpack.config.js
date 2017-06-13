@@ -70,7 +70,7 @@ const webpackConfig = {
 		modules: [
 			path.join( __dirname, 'client' ),
 			path.join( __dirname, 'client', 'extensions' ),
-			'node_modules',
+			path.join( __dirname, 'node_modules' ),
 		],
 		alias: {
 			'react-virtualized': 'react-virtualized/dist/commonjs',

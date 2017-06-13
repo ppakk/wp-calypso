@@ -95,7 +95,7 @@ const webpackConfig = {
 			path.join( __dirname, 'client' ),
 			path.join( __dirname, 'client', 'extensions' ),
 			__dirname,
-			'node_modules',
+			path.join( __dirname, 'node_modules' ),
 		],
 		extensions: [ '.json', '.js', '.jsx' ],
 	},
